@@ -19,6 +19,7 @@ Sphere::~Sphere ()
 {
 }
 
+// Source: http://www.cplusplus.com/forum/beginner/9735/
 bool quadraticFormula(double a, double b, double c, double *totalResults)
 {
     double D = sqrt( (b*b) - (4*a*c) );//shorter name
@@ -51,6 +52,7 @@ double Sphere::intersect (Intersection& intersectionInfo)
 	*		center of the sphere
 	*	r is the radius of the sphere
 	*/
+    double beta;
     Point3d centerSphere = this->center;
     double radius = this->radius;
     
@@ -58,9 +60,6 @@ double Sphere::intersect (Intersection& intersectionInfo)
     Point3d camPos = theRay.getPos();
     Vector3d v = theRay.getDir();
     Vector3d u = Vector3d(camPos, centerSphere);
-    
-    cout << "v " << v.length()  << endl;
-    cout << "u " << u.length() << endl;
     
     
     double answers[2];
@@ -71,45 +70,37 @@ double Sphere::intersect (Intersection& intersectionInfo)
     double b = -2 * u.dot(v);
     double c = pow(u.length(),2) - pow(radius, 2);
     
-    double beta;
+
 
     if (!quadraticFormula(a, b ,c, &answers[0]))
         return -1;
-    else
-    {
-        cout<<"\nYour Results are:"<<endl;
-        cout << answers[0] << endl << answers[1] << endl;
-    }
+
     
     if (isnan(answers[0])) answers[0] = -1;
     if (isnan(answers[1])) answers[1] = -1;
     
     
+    // Determine if intersectionInfo.theRay intersects the sphere in front of the camera
     if (answers[0] < 0)
-    {
-        if (answers[1] < 0)
-            return -1;
-        else
-            beta = answers[1];
-    }
+        if (answers[1] < 0) return -1;
+        else beta = answers[1];
     else
-    {
-        if (answers[1] < 0)
-            beta = answers[0];
-        else
-            beta = min(answers[0], answers[1]);
-    }
+        if (answers[1] < 0) beta = answers[0];
+        else beta = min(answers[0], answers[1]);
     
+    
+    // Store intersectionInfo on intersection point in intersectionInfo
     Point3d intersectionPoint = camPos + beta * v;
     intersectionInfo.iCoordinate = intersectionPoint;
-    cout << "BETA 1 "<< beta << endl;
-    Vector3d w = Vector3d(center, intersectionPoint);
-    if (w.length() != radius )
-        cout << "RADIUS DERPING" << endl;
     
     Vector3d normalV = Vector3d(center, intersectionPoint);
     normalV.normalize();
     intersectionInfo.normal = normalV;
+    intersectionInfo.textured = this->textured;
+    intersectionInfo.material = this->material;
+    
+    
+    Vector3d w = Vector3d(center, intersectionPoint);
     
     // RAY_CASTING TODO (sphere intersection)
     // Determine if intersectionInfo.theRay intersects the sphere in front of the camera

@@ -54,11 +54,10 @@ void RayFile::raytrace (Image* image)
             // Compute and set the starting poisition and direction of the ray through pixel i,j
             // HINT: be sure to normalize the direction vector
             // RAY_CASTING TODO
-            Vector3d currentDir = Vector3d(currentPoint, cameraPos);
+            Vector3d currentDir = Vector3d(cameraPos, currentPoint);
             theRay.setPos(cameraPos);
-            currentDir = currentDir.normalize();
+            currentDir = currentDir.getUnit();
             theRay.setDir(currentDir);
-            
             
 			// get the color at the closest intersection point
 
