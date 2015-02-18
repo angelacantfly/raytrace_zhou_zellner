@@ -58,7 +58,7 @@ double Triangle::intersect (Intersection& intersectionInfo)
     double w1w2 = w1.dot(w2);
     double w2w2 = w2.dot(w2);
     
-    double gamma = (w1w1 * av_u_w2 - w2w2 * av_u_w1)/ (w1w2 * (w1w1 - w2w2));
+    double gamma = - (w1w2 * av_u_w1 - av_u_w2 * w1w1)/ (w1w1 * w2w2 - pow(w1w2,2));
     double beta = (av_u_w1 - gamma * w1w2)/(w1w1);
 
     if (!(gamma >= 0 && beta >= 0 && beta + gamma <= 1))

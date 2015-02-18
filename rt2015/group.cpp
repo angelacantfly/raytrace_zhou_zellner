@@ -34,13 +34,36 @@ double Group::intersect (Intersection& intersectionInfo)
     // make copy of intersection info for local use
     Intersection localInfo;
     localInfo.theRay = intersectionInfo.theRay;
+    Vector3d theray = localInfo.theRay.getDir();
+    Point3d p = localInfo.theRay.getPos();
     
     // RAY_CASTING TODO (Transformations)
     // transform localInfo.theRay into local coordinates
     // RAY_CASTING TODO (Transformations)
-
-
+    Matrixd inverse_local_ray;
+    inverse_local_ray(0,0) = theray[0];
+    inverse_local_ray(0,1) = theray[1];
+    inverse_local_ray(0,2) = theray[2];
+    inverse_local_ray(0,3) = 1;
+    inverse_local_ray = inverse_local_ray.leftMult(this->invTransform);
+    theray[0] = inverse_local_ray(0,0);
+    theray[1] = inverse_local_ray(0,1);
+    theray[2] = inverse_local_ray(0,2);
+    theray.normalize();
+    localInfo.theRay.setDir(theray);
     
+    Matrixd local_p;
+    local_p(0,0) = p[0];
+    local_p(0,1) = p[1];
+    local_p(0,2) = p[2];
+    local_p(0,3) = 1;
+    local_p = local_p.leftMult(this->invTransform);
+    p[0] = local_p(0,0);
+    p[1] = local_p(0,1);
+    p[2] = local_p(0,2);
+    localInfo.theRay.setPos(p);
+    
+
     // alpha is the distance to the closest intersection point we've found
     double alpha=-1;
 
@@ -57,24 +80,61 @@ double Group::intersect (Intersection& intersectionInfo)
         
 		// Distance for the current object
 		double currDist = (*sg)->intersect(tempInfo);
-
+        
         // RAY_CASTING TODO (Intersection)
 		// In case of a new closest intersection, update alpha a localInfo
         // RAY_CASTING TODO (Intersection)
-        if (alpha < 0 || currDist < alpha)
+        if (alpha < 0 or (currDist < alpha and currDist >= 0))
         {
             alpha = currDist;
             localInfo = tempInfo;
         }
         
 	}
-
     // RAY_CASTING TODO (sphere/triangle intersection and transformation)
     // If intersection point was found
 	// transform localInfo parent's coordinate and copy into intersectinInfo
     // (be sure to renormalize normal vector!)
     // recompute alpha in parent's coordinate system
     // RAY_CASTING TODO (sphere/triangle intersection and transformation)
+
+    
+    // transform the normal to world coordinate
+    Matrixd transform_normal;
+    transform_normal(0,0) = localInfo.normal[0];
+    transform_normal(0,1) = localInfo.normal[1];
+    transform_normal(0,2) = localInfo.normal[2];
+    transform_normal(0,3) = 1;
+    transform_normal = transform_normal.leftMult(this->invTransform.transpose());
+    localInfo.normal[0] = transform_normal(0,0);
+    localInfo.normal[1] = transform_normal(0,1);
+    localInfo.normal[2] = transform_normal(0,2);
+    
+    // tranform the alpha to world coordinate
+//    Point3d local_q = localInfo.iCoordinate;
+//    Matrixd transform_q;
+//    transform_q(0,0) = local_q[0];
+//    transform_q(0,1) = local_q[1];
+//    transform_q(0,2) = local_q[2];
+//    transform_q(0,3) = 1;
+//    transform_q.leftMult(this->transform);
+//    Point3d global_q(transform_q(0,0), transform_q(0,1), transform_q(0,2));
+//    Vector3d global_q_vec(intersectionInfo.theRay.getPos(), global_q);
+//    alpha = global_q_vec.length();
+    
+    //    inverse_local_ray = inverse_local_ray.leftMult(this->transform);
+    //    theray[0] = inverse_local_ray(0,0);
+    //    theray[1] = inverse_local_ray(0,1);
+    //    theray[2] = inverse_local_ray(0,2);
+    //    theray.normalize();
+    localInfo.theRay.setDir(intersectionInfo.theRay.getDir());
+    
+    //    local_p = local_p.leftMult(this->transform);
+    //    p[0] = local_p(0,0);
+    //    p[1] = local_p(0,1);
+    //    p[2] = local_p(0,2);
+    localInfo.theRay.setPos(intersectionInfo.theRay.getPos());
+    
     if (alpha >= 0) {
         intersectionInfo = localInfo;
         intersectionInfo.normal = localInfo.normal.normalize();
