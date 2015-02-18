@@ -28,13 +28,62 @@ double Triangle::intersect (Intersection& intersectionInfo)
 	*
 	* Then, decompose the vector p - v0 into a linear combination of
 	*/
+
+    Point3d v0 = this->v[0];
+    Point3d v1 = this->v[1];
+    Point3d v2 = this->v[2];
+    Point3d camPos = intersectionInfo.theRay.getPos();
+    Vector3d u(camPos, v0);
+    Vector3d ray = intersectionInfo.theRay.getDir();
     
+    // (1) determine intersection with plane (if any)
+    // the ray is parallel to one of the sides of the triangle
+    // therefore, no intersection
+    if (this->n.dot(ray) == 0)
+        return -1;
+    
+    double alpha = (n.dot(u))/(n.dot(ray));
+    if (alpha < 0)
+        return -1;
+
+    // (2) test if intersection point is in triangle
+    Vector3d w1(v0,v1);
+    Vector3d w2(v0,v2);
+
+    
+    
+    double av_u_w1 = (alpha*ray - u).dot(w1);
+    double av_u_w2 = (alpha*ray - u).dot(w2);
+    double w1w1 = w1.dot(w1);
+    double w1w2 = w1.dot(w2);
+    double w2w2 = w2.dot(w2);
+    
+    double gamma = (w1w1 * av_u_w2 - w2w2 * av_u_w1)/ (w1w2 * (w1w1 - w2w2));
+    double beta = (av_u_w1 - gamma * w1w2)/(w1w1);
+
+    if (!(gamma >= 0 && beta >= 0 && beta + gamma <= 1))
+        return -1;
+    
+    // (3) compute distance from start of ray to intersection point & normal in direction of incoming ray
+    Point3d intersect = camPos + alpha * ray;
+    intersectionInfo.iCoordinate = intersect;
+    
+    Vector3d w1w2pos = (w1.cross(w2)).getUnit();
+    Vector3d w1w2neg = -w1w2pos;
+    
+    if (w1w2pos.dot(intersect-camPos) < 0)
+        intersectionInfo.normal = n;
+    else
+        intersectionInfo.normal = -n;
+
     // RAY_CASTING TODO (intersection)
     // (1) determine intersection with plane (if any)
     // (2) test if intersection point is in triangle
     // (3) compute distance from start of ray to intersection point & normal in direction of incoming ray
-
-	return -1;
+    
+    intersectionInfo.textured = this->textured;
+    intersectionInfo.material = this->material;
+	return alpha;
 }
 
 
