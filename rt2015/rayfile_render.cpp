@@ -145,8 +145,25 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 		return color;
 
 	// recursive step
+    Rayd newRay;
+    Vector3d normal = intersectionInfo.normal;
+    if (intersectionInfo.theRay.getDir().dot(normal) > 0)
+        normal = -normal;
+    normal.normalize();
+    
+    intersectionInfo.normal = normal; // FIXME: do we need this?
+    
+    
+    // Compute reflected ray according to Snell's law
+    // FIXME: if bug, this might reflect, cuz we are not using original ray
+    newRay.setDir(intersectionInfo.theRay.getDir() + 2 * (- intersectionInfo.theRay.getDir()).dot(normal) * normal);
+    // Offset the starting point of the ray a little
+    newRay.setPos(intersectionInfo.iCoordinate + EPSILON * normal); // TODO: for transmission is - epi * n
 
-	// reflection
+    Color3d reflectionColor = getColor(newRay, rDepth -1);
+    for (int c = 0; c < 3; c++)
+        color[c] += (intersectionInfo.material->getSpecular())[c] * reflectionColor[c];
+    
 
 	// transmission
 
