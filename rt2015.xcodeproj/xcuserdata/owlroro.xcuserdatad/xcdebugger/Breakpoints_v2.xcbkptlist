@@ -102,15 +102,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446348182.78471"
+            timestampString = "446351678.663815"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "163"
-            endingLineNumber = "163"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>
@@ -122,11 +122,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446348182.78471"
+            timestampString = "446351678.663815"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "165"
-            endingLineNumber = "165"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>
@@ -134,15 +134,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446348182.78471"
+            timestampString = "446351678.663815"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "156"
-            endingLineNumber = "156"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>
@@ -166,15 +166,31 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446347533.329903"
+            timestampString = "446351313.052362"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "130"
-            endingLineNumber = "130"
+            startingLineNumber = "135"
+            endingLineNumber = "135"
+            landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "rt2015/rayfile_render.cpp"
+            timestampString = "446351678.663815"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>
@@ -186,11 +202,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446347599.941459"
+            timestampString = "446351678.663815"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "136"
-            endingLineNumber = "136"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>
@@ -202,11 +218,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446348236.819514"
+            timestampString = "446351678.663815"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
+            startingLineNumber = "151"
+            endingLineNumber = "151"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>
@@ -214,15 +230,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "rt2015/rayfile_render.cpp"
-            timestampString = "446348243.229556"
+            timestampString = "446351232.14341"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "146"
-            endingLineNumber = "146"
+            startingLineNumber = "122"
+            endingLineNumber = "122"
+            landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "rt2015/rayfile_render.cpp"
+            timestampString = "446351678.663815"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
+            landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "rt2015/rayfile_render.cpp"
+            timestampString = "446351678.663815"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "137"
+            endingLineNumber = "137"
             landmarkName = "RayFile::getColor(Rayd theRay, int rDepth)"
             landmarkType = "5">
          </BreakpointContent>

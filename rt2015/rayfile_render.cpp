@@ -116,13 +116,18 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 
 	// intersection found so compute color
 	Color3d color;
+//    color = intersectionInfo.material->getAmbient();s
+    
 
 	// check for texture
-
+    if (intersectionInfo.material->textured()) {
+        //set the texture shet
+//        Color3d texture = intersectionInfo.material->getTexture(<#double u#>, <#double v#>)
+    }
 	// add emissive term
-
+    Color3d emissive = intersectionInfo.material->getEmissive();
 	// add ambient term
-    
+    Color3d ambient = intersectionInfo.material->getAmbient();
     
     // add contribution from each light
     for (VECTOR(Light*)::iterator theLight = lights.begin(); theLight != lights.end(); ++theLight)
@@ -168,6 +173,14 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 	// transmission
 
 	// compute transmitted ray using snell's law
+    
+    // ---------------
+    // |            |
+    // |            |
+    // |  -      -  |
+    // |    ____    |
+    // |            |
+    // ---------------
 
 	return color;
 }

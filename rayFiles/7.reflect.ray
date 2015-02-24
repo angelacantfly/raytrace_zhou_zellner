@@ -14,10 +14,12 @@
 	0.0	1.0	0.0	// up
 	30.0			// heightAngle
 
-#light_point -n PointLight1 --
+#light_dir -n PointLight1 --
+//	1.0	1.0	1.0	// color
+//	0.0	1.0	1.0	// position
 	1.0	1.0	1.0	// color
-	0.0	1.0	1.0	// position
-	1.0	0.0	0.0	// const, linear, quad atten
+	-1.0	-1.0	-1.0	// direction
+//	1.0	0.0	0.0	// const, linear, quad atten
 
 
 #material -n mGreen --
