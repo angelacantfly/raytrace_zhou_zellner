@@ -26,6 +26,7 @@ Color3d PointLight::getDiffuse (Intersection& info)
    * Then factor in attenuation.
    */
     Vector3d direction(location, info.iCoordinate);
+    direction.normalize();
     double angleFactor = -direction.dot(info.normal);
     double dist = direction.length();
     double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
@@ -54,20 +55,21 @@ Color3d PointLight::getSpecular (Intersection& info)
 	//compute direction light falls on surface
     
     Vector3d direction(location, info.iCoordinate);
+    direction.normalize();
     double angleFactor = -direction.dot(info.normal);
     double dist = direction.length();
     double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
-    
+    Vector3d rayDir = info.theRay.getDir();
     Color3d result(0,0,0);
     if (angleFactor > 0)
         for (int c = 0; c < 3; ++c)
         {
-            Vector3d dr = direction + 2* ((-direction).dot(info.normal)) * info.normal;
-            double drterm = (-direction.dot(dr));
+            Vector3d dr = direction + 2.0* (angleFactor) * info.normal;
+            double drterm = (-rayDir.dot(dr));
             // attenuation * spotfactor (1) * lightcolor * msr * max(0,drterm)^kshine
             result[c] = a * color[c] * info.material->getSpecular()[c] * pow(max(0.0, drterm), info.material->getKshine());
         }
-    result.clampTo(0.0, 1.0);
+    result.clampTo(0, 1.0);
     return result;
     
 }
