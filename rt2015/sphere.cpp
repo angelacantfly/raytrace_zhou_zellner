@@ -96,6 +96,11 @@ double Sphere::intersect (Intersection& intersectionInfo)
     Vector3d normalV = Vector3d(center, intersectionPoint);
     normalV.normalize();
     intersectionInfo.normal = normalV;
+    
+    if (intersectionInfo.normal.dot(intersectionInfo.theRay.getDir()) < 0)
+        intersectionInfo.entering = true;
+    else intersectionInfo.entering = false;
+    
     intersectionInfo.textured = this->textured;
     intersectionInfo.material = this->material;
     

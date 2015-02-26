@@ -62,7 +62,7 @@ void RayFile::raytrace (Image* image)
 			// get the color at the closest intersection point
 
 			Color3d theColor = getColor(theRay, options->recursiveDepth);
-
+            theColor.clampTo(0.0, 1.0);
 			// the image class doesn't know about color3d so we have to convert to pixel
 			// update pixel
 			Pixel p;
@@ -177,7 +177,13 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
         transNewRay.setPos(intersectionInfo.iCoordinate - EPSILON * normal);
         // Calculate the index of refraction of the inner material
         double refindOut = intersectionInfo.material->getRefind();
-        double beta = refindIn/refindOut;
+        
+        double beta;
+        if (intersectionInfo.entering)
+            beta = refindIn/refindOut;
+        else
+            beta = refindOut/refindIn;
+        
         double thetaIn = acos(transNewRay.getDir().dot(-normal));
         bool doTrans = false;
         
@@ -194,9 +200,9 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
         if (doTrans) {
             Color3d transColor = getColor(transNewRay, rDepth -1);
             for (int c = 0; c < 3; c++)
-                color[c] += (intersectionInfo.material->getSpecular())[c] * reflectionColor[c] * intersectionInfo.material->getKtrans();
+                color[c] += (intersectionInfo.material->getSpecular())[c] * transColor[c] * intersectionInfo.material->getKtrans();
         }
-        
+        color.clampTo(0, 1);
     }
     
 	// compute transmitted ray using snell's law

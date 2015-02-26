@@ -25,8 +25,21 @@ Color3d PointLight::getDiffuse (Intersection& info)
    * the normal with the vector opposite the incident light's direction.
    * Then factor in attenuation.
    */
-	return Color3d(0,0,0);
+    Vector3d direction(location, info.iCoordinate);
+    double angleFactor = -direction.dot(info.normal);
+    double dist = direction.length();
+    double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
 
+    Color3d result(0,0,0);
+    if (angleFactor > 0)
+        for (int c = 0; c < 3; ++c)
+        {
+            double ldterm = info.normal.dot(-direction.getUnit());
+            // attenuation * spotfactor (1) * lightcolor * mdr * max(0, ldterm)
+            result[c] = a * color[c] * info.material->getDiffuse(info)[c] * max(0.0, ldterm);
+        }
+    result.clampTo(0, 1.0);
+    return result;
   
 }
 
@@ -39,9 +52,25 @@ Color3d PointLight::getSpecular (Intersection& info)
    * some power (in this case, kshine). Then factor in attenuation.
    */
 	//compute direction light falls on surface
-
-	return Color3d(0,0,0);
-	}
+    
+    Vector3d direction(location, info.iCoordinate);
+    double angleFactor = -direction.dot(info.normal);
+    double dist = direction.length();
+    double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
+    
+    Color3d result(0,0,0);
+    if (angleFactor > 0)
+        for (int c = 0; c < 3; ++c)
+        {
+            Vector3d dr = direction + 2* ((-direction).dot(info.normal)) * info.normal;
+            double drterm = (-direction.dot(dr));
+            // attenuation * spotfactor (1) * lightcolor * msr * max(0,drterm)^kshine
+            result[c] = a * color[c] * info.material->getSpecular()[c] * pow(max(0.0, drterm), info.material->getKshine());
+        }
+    result.clampTo(0.0, 1.0);
+    return result;
+    
+}
 
 
 bool PointLight::getShadow (Intersection& iInfo, ShapeGroup* root)
@@ -51,8 +80,19 @@ bool PointLight::getShadow (Intersection& iInfo, ShapeGroup* root)
    * to a light, cast a ray from the intersection towards the light
    * and see if it intersects anything. 
    */
-
-	return false;
+    
+    Vector3d direction(location, iInfo.iCoordinate);
+    if (direction.dot(iInfo.normal)>0)
+        return true;
+    // otherwise we'll check
+    Rayd shadowRay;
+    shadowRay.setDir(direction*-1);
+    shadowRay.setPos(iInfo.iCoordinate + iInfo.normal * EPSILON);
+    Intersection tmpInfo;
+    tmpInfo.theRay=shadowRay;
+    if (root->intersect(tmpInfo) > EPSILON)
+        return true;
+    return false;
 
 }
 
