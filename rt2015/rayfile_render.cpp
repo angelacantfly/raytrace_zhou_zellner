@@ -186,36 +186,30 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
         else
             beta = 1/refind;
         
-        double thetaIn = acos(transNewRay.getDir().dot(-normal));
-//        double costheta = transNewRay.getDir().dot(-normal);
-//        double sintheta = sqrt(1- pow(costheta, 2));
-        // FIXME: acos is prob?
         bool doTrans = false;
-//        Vector3d v = intersectionInfo.theRay.getDir();
-//        v.normalize();
-//        if (thetaIn==0) {
-//            doTrans = true;
-//        }
-//        else if ((beta*sin(thetaIn)>0) && (beta*sin(thetaIn)<1)) {
-//            doTrans = true;
-//            double thetaOut = asin(beta* sin(thetaIn)); // FIXME: asin?
-////            double thetaOut = asin(beta * sintheta);
-//            Vector3d v_s = (v - (cos(thetaIn)*(-normal))/ sin(thetaIn));
-//            v_s.normalize();
-//            Vector3d transray =cos(thetaOut)*(-normal) + sin(thetaOut)* v_s;
-//            transray.normalize();
-//            transNewRay.setDir(transray);
-
+        
+        Vector3d v = intersectionInfo.theRay.getDir().getUnit();
+        double cosThetaIn = (-1 * normal).dot(v);
+        double sinThetaIn = sqrt( 1 - pow(cosThetaIn, 2));
+        double sinThetaOut = beta * sinThetaIn;
+        double cosThetaOut = sqrt(1 - pow(sinThetaOut, 2));
+        Vector3d v_trans;
+        if (beta* sinThetaIn == 0) {
+            doTrans = true;
+            v_trans = v;
         }
-        
-        
+        else if ((beta* sinThetaIn > 0) and (beta * sinThetaIn < 1)) {
+            doTrans = true;
+            Vector3d v_s = (v - (cosThetaIn * (-1 * normal)))/ (sinThetaIn);
+            v_trans = cosThetaOut * (-1 * normal) + sinThetaOut * (v_s.getUnit());
+        }
         if (doTrans) {
+            v_trans.normalize();
+            transNewRay.setDir(v_trans);
             Color3d transColor = getColor(transNewRay, rDepth -1);
             for (int c = 0; c < 3; c++)
                 color[c] += (intersectionInfo.material->getSpecular())[c] * transColor[c] * intersectionInfo.material->getKtrans();
         }
-//        if ((color[0] == color[1] == color[2]) && color[0] != 0)
-//            cout << "HEY GURRLL" << endl;
         color.clampTo(0, 1);
     }
     
