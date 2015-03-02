@@ -156,10 +156,10 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
     Rayd reflNewRay;
     Vector3d normal = intersectionInfo.normal;
     if (intersectionInfo.theRay.getDir().dot(normal) > 0)
-        normal = -normal;
+        normal *= -1;
     normal.normalize();
     
-    intersectionInfo.normal = normal; // FIXME: do we need this?
+//    intersectionInfo.normal = normal; // FIXME: do we need this?
     
     // Compute reflected ray according to Snell's law
     reflNewRay.setDir(intersectionInfo.theRay.getDir() + 2 * (- intersectionInfo.theRay.getDir()).dot(normal) * normal);
@@ -174,37 +174,48 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
     if (intersectionInfo.material->getKtrans() != 0) {
         Rayd transNewRay;
         // Compute transmitted ray according to Snell's law
-        transNewRay.setDir(intersectionInfo.theRay.getDir());
+        transNewRay.setDir(intersectionInfo.theRay.getDir().getUnit());
         // Offset the starting point of the ray a little
         transNewRay.setPos(intersectionInfo.iCoordinate - EPSILON * normal);
         // Calculate the index of refraction of the inner material
-
-//        
-//        double beta;
-//        if (intersectionInfo.entering)
-//            beta = refindIn/refindOut;
-//        else
-//            beta = refindOut/refindIn;
-//        
-//        double cosThetaIn =
-//        double thetaIn = acos(transNewRay.getDir().dot(-normal));
-//        bool doTrans = false;
-//        
+        
+        double beta;
+        double refind = intersectionInfo.material->getRefind();
+        if (intersectionInfo.entering)
+            beta = refind;
+        else
+            beta = 1/refind;
+        
+        double thetaIn = acos(transNewRay.getDir().dot(-normal));
+//        double costheta = transNewRay.getDir().dot(-normal);
+//        double sintheta = sqrt(1- pow(costheta, 2));
+        // FIXME: acos is prob?
+        bool doTrans = false;
+//        Vector3d v = intersectionInfo.theRay.getDir();
+//        v.normalize();
 //        if (thetaIn==0) {
 //            doTrans = true;
-//            transNewRay.setDir(reflNewRay.getDir());
 //        }
-//        else if (!(beta*sin(thetaIn)<0) && !(beta*sin(thetaIn)>1)) {
+//        else if ((beta*sin(thetaIn)>0) && (beta*sin(thetaIn)<1)) {
 //            doTrans = true;
-//            double thetaOut = asin(refindIn * sin(thetaIn) / refindOut);
-//            transNewRay.setDir(cos(thetaOut)*-normal + sin(thetaOut)* intersectionInfo.theRay.getDir().getUnit());
-//        }
+//            double thetaOut = asin(beta* sin(thetaIn)); // FIXME: asin?
+////            double thetaOut = asin(beta * sintheta);
+//            Vector3d v_s = (v - (cos(thetaIn)*(-normal))/ sin(thetaIn));
+//            v_s.normalize();
+//            Vector3d transray =cos(thetaOut)*(-normal) + sin(thetaOut)* v_s;
+//            transray.normalize();
+//            transNewRay.setDir(transray);
+
+        }
         
-        if (true) {
+        
+        if (doTrans) {
             Color3d transColor = getColor(transNewRay, rDepth -1);
             for (int c = 0; c < 3; c++)
                 color[c] += (intersectionInfo.material->getSpecular())[c] * transColor[c] * intersectionInfo.material->getKtrans();
         }
+//        if ((color[0] == color[1] == color[2]) && color[0] != 0)
+//            cout << "HEY GURRLL" << endl;
         color.clampTo(0, 1);
     }
     
