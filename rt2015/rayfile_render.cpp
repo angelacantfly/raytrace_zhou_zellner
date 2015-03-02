@@ -45,6 +45,9 @@ void RayFile::raytrace (Image* image)
 	{
 		for (int i = 0; i<imageWidth; ++i)
 		{
+            if (i==imageWidth-1 && j==0) {
+                cout << "stop";
+            }
 
             // Compute the ray to trace
             Rayd theRay;
@@ -171,33 +174,33 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
     if (intersectionInfo.material->getKtrans() != 0) {
         Rayd transNewRay;
         // Compute transmitted ray according to Snell's law
-        double refindIn = intersectionInfo.material->getRefind();
         transNewRay.setDir(intersectionInfo.theRay.getDir());
         // Offset the starting point of the ray a little
         transNewRay.setPos(intersectionInfo.iCoordinate - EPSILON * normal);
         // Calculate the index of refraction of the inner material
-        double refindOut = intersectionInfo.material->getRefind();
+
+//        
+//        double beta;
+//        if (intersectionInfo.entering)
+//            beta = refindIn/refindOut;
+//        else
+//            beta = refindOut/refindIn;
+//        
+//        double cosThetaIn =
+//        double thetaIn = acos(transNewRay.getDir().dot(-normal));
+//        bool doTrans = false;
+//        
+//        if (thetaIn==0) {
+//            doTrans = true;
+//            transNewRay.setDir(reflNewRay.getDir());
+//        }
+//        else if (!(beta*sin(thetaIn)<0) && !(beta*sin(thetaIn)>1)) {
+//            doTrans = true;
+//            double thetaOut = asin(refindIn * sin(thetaIn) / refindOut);
+//            transNewRay.setDir(cos(thetaOut)*-normal + sin(thetaOut)* intersectionInfo.theRay.getDir().getUnit());
+//        }
         
-        double beta;
-        if (intersectionInfo.entering)
-            beta = refindIn/refindOut;
-        else
-            beta = refindOut/refindIn;
-        
-        double thetaIn = acos(transNewRay.getDir().dot(-normal));
-        bool doTrans = false;
-        
-        if (thetaIn==0) {
-            doTrans = true;
-            transNewRay.setDir(reflNewRay.getDir());
-        }
-        else if (!(beta*sin(thetaIn)<0) && !(beta*sin(thetaIn)>1)) {
-            doTrans = true;
-            double thetaOut = asin(refindIn * sin(thetaIn) / refindOut);
-            transNewRay.setDir(cos(thetaOut)*-normal + sin(thetaOut)* intersectionInfo.theRay.getDir().getUnit());
-        }
-        
-        if (doTrans) {
+        if (true) {
             Color3d transColor = getColor(transNewRay, rDepth -1);
             for (int c = 0; c < 3; c++)
                 color[c] += (intersectionInfo.material->getSpecular())[c] * transColor[c] * intersectionInfo.material->getKtrans();

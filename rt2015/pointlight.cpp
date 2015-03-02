@@ -26,9 +26,10 @@ Color3d PointLight::getDiffuse (Intersection& info)
    * Then factor in attenuation.
    */
     Vector3d direction(location, info.iCoordinate);
+    // We must compute the length of the vector before normalizing
+    double dist = direction.length();
     direction.normalize();
     double angleFactor = -direction.dot(info.normal);
-    double dist = direction.length();
     double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
 
     Color3d result(0,0,0);
@@ -55,9 +56,10 @@ Color3d PointLight::getSpecular (Intersection& info)
 	//compute direction light falls on surface
     
     Vector3d direction(location, info.iCoordinate);
+    // We must compute the length of the vector before normalizing
+    double dist = direction.length();
     direction.normalize();
     double angleFactor = -direction.dot(info.normal);
-    double dist = direction.length();
     double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
     Vector3d rayDir = info.theRay.getDir();
     Color3d result(0,0,0);
@@ -84,6 +86,8 @@ bool PointLight::getShadow (Intersection& iInfo, ShapeGroup* root)
    */
     
     Vector3d direction(location, iInfo.iCoordinate);
+    // Normalize before doing the intersection test
+    direction.normalize();
     if (direction.dot(iInfo.normal)>0)
         return true;
     // otherwise we'll check

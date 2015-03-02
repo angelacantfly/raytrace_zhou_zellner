@@ -5,7 +5,7 @@
 * sphere. 
 */
 #background	0.1 0.0 0.1
-#ambient	0.0 0.3 0.0
+//#ambient	0.0 0.3 0.0
 #camera
 	-1.0	0.0	0.0	// position
 	1.0	0.0	0.0	// facing

@@ -5,7 +5,7 @@
 * sphere. 
 */
 #background	0.0 0.0 0.0
-#ambient	0.0 0.0 0.0
+//#ambient	0.0 0.0 0.0
 #camera
 	-1.0	0.0	0.0	// position
 	1.0	0.0	0.0	// facing
@@ -15,7 +15,7 @@
 //	1.0	1.0	1.0	// color
 //	0.0	1.0	1.0	// position
 	1.0	1.0	1.0	// color
-	-1.0	-1.0	-1.0	// direction
+	1.0	-1.0	-1.0	// direction
 //	1.0	0.0	0.0	// const, linear, quad atten	
 //#light_point -n PointLight1 --
 //	1.0	1.0	1.0	// color
