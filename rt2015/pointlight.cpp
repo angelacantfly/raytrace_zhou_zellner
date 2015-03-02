@@ -86,8 +86,6 @@ bool PointLight::getShadow (Intersection& iInfo, ShapeGroup* root)
    */
     
     Vector3d direction(location, iInfo.iCoordinate);
-    // Normalize before doing the intersection test
-    direction.normalize();
     if (direction.dot(iInfo.normal)>0)
         return true;
     // otherwise we'll check
