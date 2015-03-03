@@ -11,20 +11,15 @@
 	1.0	0.0	0.0	// facing
 	0.0	1.0	0.0	// up
 	30.0			// heightAngle
-#light_dir -n PointLight1 --
-//	1.0	1.0	1.0	// color
-//	0.0	1.0	1.0	// position
+	
+#light_point -n PointLight1 --
 	1.0	1.0	1.0	// color
-	1.0	-1.0	-1.0	// direction
-//	1.0	0.0	0.0	// const, linear, quad atten	
-//#light_point -n PointLight1 --
-//	1.0	1.0	1.0	// color
-//	1.0	1.0	1.0	// position
-//	1.0	0.0	0.0	// const, linear, quad atten
-//#light_point -n PointLight2 --
-//	1.0	1.0	1.0	// color
-//	1.0	0.0	-5.0	// position
-//	1.0	0.0	0.0	// const, linear, quad atten
+	1.0	1.0	1.0	// position
+	1.0	0.0	0.0	// const, linear, quad atten
+#light_point -n PointLight2 --
+	1.0	1.0	1.0	// color
+	1.0	0.0	-5.0	// position
+	1.0	0.0	0.0	// const, linear, quad atten
 #material -n mblue  --
 	0.1	0.1	0.1	// ambient
 	0.0	0.0	1.0	// diffuse

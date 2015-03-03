@@ -119,8 +119,6 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 
 	// intersection found so compute color
 	Color3d color;
-//    color = intersectionInfo.material->getAmbient();s
-    
 
 	// check for texture
     if (intersectionInfo.material->textured()) {
@@ -157,7 +155,7 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
     Vector3d normal = intersectionInfo.normal;
     if (intersectionInfo.theRay.getDir().dot(normal) > 0)
         normal *= -1;
-    normal.normalize();
+  //  normal.normalize();
     
 //    intersectionInfo.normal = normal; // FIXME: do we need this?
     
