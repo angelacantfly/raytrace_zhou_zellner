@@ -1,0 +1,49 @@
+#version HMCCS155FALL2002 
+#camera 0.0 20.0 90.0 // position 
+0.0 -.15	-1.0 // facing 
+0.0 1.0 0.0 // up 
+10.0 // heightAngle 
+
+#background 0.0 0.0 0.0 
+#ambient 0.4	0.4	0.4 //intensity 
+
+#light_dir -n DirLight1 --
+	1.0	1.0	1.0	// color
+	-1.0	-1.0	-1.0	// direction
+
+
+#material -n matteBlue -- 
+0.05 0.05 0.4	// ambient 
+0.1	0.1	0.7	// diffuse 
+0.0	0.0	0.0	// specular 
+0.0	0.0	0.0	// emissive 
+0.0	0.0	1.0	// kspec ktrans refind 
+
+
+#material -n mAcrylic --
+0.1	0.1	0.1	// ambient
+0.7	0.7	0.7	// diffuse
+0.7	0.7	0.7	// specular
+0.0	0.0	0.0	// emissive
+0.99	0.8	1.2	// kspec ktrans refind
+
+#sphere -m mAcrylic -- 
+0.0 6.0 0.0 // position 
+6.0 // radius 
+
+#triangle -n Triangle1 -m matteBlue  --
+0.0	24.0 3.0	// v0 t0
+-12.0 6.0 3.0	// v1 t1
+12.0 6.0	3.0	// v2 t2
+
+#triangle -m matteBlue -- 
+10.0 0.0 -10.0 
+-10.0 0.0 -10.0 
+-10.0 0 10.0 
+
+#triangle -m matteBlue -- 
+-10.0 0.0 10.0 
+10.0 0.0 10.0 
+10.0 0.0 -10.0 
+
+#rayfile_end
