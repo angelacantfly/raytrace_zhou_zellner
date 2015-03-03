@@ -9,7 +9,7 @@ Shape::Shape ()
   material = NULL;
   textured = false;
   bumpMapped=false;
-  bumpScale=0;
+  bumpScale=0; 
 }
 
 

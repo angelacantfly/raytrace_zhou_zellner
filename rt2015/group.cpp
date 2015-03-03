@@ -83,7 +83,9 @@ double Group::intersect (Intersection& intersectionInfo)
         intersectionInfo.iCoordinate = this->transform.multPos(localInfo.iCoordinate);
         intersectionInfo.material = localInfo.material;
         intersectionInfo.textured = localInfo.textured;
+        intersectionInfo.texCoordinate = localInfo.texCoordinate;
         intersectionInfo.normal.normalize();
+        
         
         Vector3d newAlpha(localInfo.theRay.getPos(), localInfo.iCoordinate);
         alpha = newAlpha.length();
@@ -337,7 +339,7 @@ Matrixd Group::readRotate(istream &in)
 
 	result(0,0) = cosTheta + (1 - cosTheta)*rx*rx;
 	result(0,1) = (1 - cosTheta)*rx*ry - rz * sinTheta;
-	result(0,2) = (1 - cosTheta)*rx*rz + ry * cosTheta;
+	result(0,2) = (1 - cosTheta)*rx*rz + ry * sinTheta;
 
 	result(1,0) = (1 - cosTheta)*rx*ry + rz * sinTheta;
 	result(1,1) = cosTheta + (1 - cosTheta)*ry*ry;

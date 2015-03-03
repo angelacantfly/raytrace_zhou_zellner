@@ -105,8 +105,35 @@ double Sphere::intersect (Intersection& intersectionInfo)
         intersectionInfo.entering = false;
     else intersectionInfo.entering = true;
     
-    intersectionInfo.textured = this->textured;
     intersectionInfo.material = this->material;
+    
+    // Texture mapping
+    intersectionInfo.textured = this->textured;
+    if (intersectionInfo.textured || material->bumpMapped())
+    {
+        double x = intersectionPoint[0];
+        double y = intersectionPoint[1];
+        double z = intersectionPoint[2];
+        double phi = acos((z)/this->radius); // (-pi, pi]
+        double theta = atan2(y, x); // [0, pi]
+        phi = phi/M_PI;
+        theta = ((theta/M_PI) + 1)/2;
+        TexCoord2d coord(theta,phi);
+        intersectionInfo.texCoordinate = coord;
+        
+        if (material->bumpMapped()) {
+            // Bump Mapping
+            Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
+            up.normalize();
+            Vector3d right = -intersectionInfo.normal.cross(up);
+//            Vector3d right = up.cross(intersectionInfo.normal);
+            right.normalize();
+            intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
+        }
+    }
+
+
+
     
     
     Vector3d w = Vector3d(center, intersectionPoint);

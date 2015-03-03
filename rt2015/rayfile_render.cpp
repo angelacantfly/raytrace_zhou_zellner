@@ -120,12 +120,7 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 	// intersection found so compute color
 	Color3d color;
 
-	// check for texture
-    if (intersectionInfo.material->textured()) {
-        //set the texture shet
-//        Color3d texture = intersectionInfo.material->getTexture(<#double u#>, <#double v#>)
-    }
-	// add emissive term
+    // add emissive term
     Color3d emissive = intersectionInfo.material->getEmissive();
 	// add ambient term
     Color3d ambient = intersectionInfo.material->getAmbient();
