@@ -25,8 +25,34 @@ Color3d SpotLight::getDiffuse (Intersection& info)
    * the normal with the vector opposite the incident light's direction.
    * Then factor in attenuation and the spotlight effect.
    */
-
-	return Color3d(0,0,0);
+    Vector3d direction(location, info.iCoordinate);
+    // We must compute the length of the vector before normalizing
+    double dist = direction.length();
+    direction.normalize();
+    double angleFactor = -direction.dot(info.normal);
+    double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
+    
+    Color3d result(0,0,0);
+    if (angleFactor > 0)
+    {
+        Vector3d ld = direction.getUnit();
+        double sp;
+        double angle = acos(ld.dot(beamCenter)/(beamCenter.length()*ld.length())) ;
+        if (angle > cutOffAngle)
+            sp = 0;
+        else
+            sp = pow(max(0.0, ld.dot(beamCenter)),128*dropOffRate);
+        
+        for (int c = 0; c < 3; ++c)
+        {
+            double ldterm = info.normal.dot(ld);
+            // attenuation * spotfactor  * lightcolor * mdr * max(0, ldterm)
+            result[c] = a * sp * color[c] *info.material->getDiffuse(info)[c] * max(0.0, ldterm);
+            result[c] = a * sp * info.material->getAmbient()[c];
+        }
+    }
+    result.clampTo(0, 1.0);
+    return result;
 
 }
 
@@ -39,9 +65,36 @@ Color3d SpotLight::getSpecular (Intersection& info)
    * some power (in this case, kshine). Then factor in attenuation and 
    * the spotlight effect.
    */
-
-
-  return Color3d(0,0,0);
+    
+    Vector3d direction(location, info.iCoordinate);
+    // We must compute the length of the vector before normalizing
+    double dist = direction.length();
+    direction.normalize();
+    double angleFactor = -direction.dot(info.normal);
+    double a = ((double) 1) / (constAtten + linearAtten * dist + quadAtten * pow(dist, 2));
+    Vector3d rayDir = info.theRay.getDir();
+    Color3d result(0,0,0);
+    if (angleFactor > 0)
+    {
+        Vector3d ld = direction.getUnit();
+        double sp;
+        double angle = acos(ld.dot(beamCenter)/(beamCenter.length()*ld.length())) ;
+        if (angle > cutOffAngle)
+            sp = 0;
+        else
+            sp = pow(max(0.0, ld.dot(beamCenter)),128*dropOffRate);
+        
+        for (int c = 0; c < 3; ++c)
+        {
+            Vector3d dr = direction + 2.0* (angleFactor) * info.normal;
+            double drterm = (-rayDir.dot(dr));
+            // attenuation * spotfactor (1) * lightcolor * msr * max(0,drterm)^kshine
+            result[c] = a * sp * color[c] * info.material->getSpecular()[c] * pow(max(0.0, drterm), info.material->getKshine());
+            
+        }
+    }
+    result.clampTo(0, 1.0);
+    return result;
 }
 
 
@@ -52,8 +105,18 @@ bool SpotLight::getShadow (Intersection& iInfo, ShapeGroup* root)
    * to a light, cast a ray from the intersection towards the light  
    * and see if it intersects anything.
    */
-   
-	return false;
+    Vector3d direction(location, iInfo.iCoordinate);
+    if (direction.dot(iInfo.normal)>0)
+        return true;
+    // otherwise we'll check
+    Rayd shadowRay;
+    shadowRay.setDir(direction*-1);
+    shadowRay.setPos(iInfo.iCoordinate + iInfo.normal * EPSILON);
+    Intersection tmpInfo;
+    tmpInfo.theRay=shadowRay;
+    if (root->intersect(tmpInfo) > EPSILON)
+        return true;
+    return false;
 }
 
 

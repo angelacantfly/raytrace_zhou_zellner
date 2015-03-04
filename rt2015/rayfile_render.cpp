@@ -45,7 +45,7 @@ void RayFile::raytrace (Image* image)
 	{
 		for (int i = 0; i<imageWidth; ++i)
 		{
-            if (i==imageWidth-1 && j==0) {
+            if (i==imageWidth/2 && j==imageHeight/2) {
                 cout << "stop";
             }
 
@@ -122,15 +122,19 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 
     // add emissive term
     Color3d emissive = intersectionInfo.material->getEmissive();
+    color += emissive;
 	// add ambient term
     Color3d ambient = intersectionInfo.material->getAmbient();
+    color += ambient;
     
     // add contribution from each light
     for (VECTOR(Light*)::iterator theLight = lights.begin(); theLight != lights.end(); ++theLight)
     {
         if (!((*theLight)->getShadow(intersectionInfo, root))) {
-            color += (*theLight)->getDiffuse(intersectionInfo);
+            color += (*theLight)->getDiffuse(intersectionInfo) ;
             color += (*theLight)->getSpecular(intersectionInfo);
+
+
         }
     }
 
