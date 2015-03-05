@@ -85,9 +85,9 @@ double Group::intersect (Intersection& intersectionInfo)
         intersectionInfo.textured = localInfo.textured;
         intersectionInfo.texCoordinate = localInfo.texCoordinate;
         intersectionInfo.normal.normalize();
+        intersectionInfo.entering = localInfo.entering;
         
-        
-        Vector3d newAlpha(localInfo.theRay.getPos(), localInfo.iCoordinate);
+        Vector3d newAlpha(intersectionInfo.theRay.getPos(), intersectionInfo.iCoordinate);
         alpha = newAlpha.length();
     }
     

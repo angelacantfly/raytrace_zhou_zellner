@@ -152,11 +152,6 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
 	// recursive step
     Rayd reflNewRay;
     Vector3d normal = intersectionInfo.normal;
-    if (intersectionInfo.theRay.getDir().dot(normal) > 0)
-        normal *= -1;
-  //  normal.normalize();
-    
-//    intersectionInfo.normal = normal; // FIXME: do we need this?
     
     // Compute reflected ray according to Snell's law
     reflNewRay.setDir(intersectionInfo.theRay.getDir() + 2 * (- intersectionInfo.theRay.getDir()).dot(normal) * normal);
@@ -179,9 +174,9 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
         double beta;
         double refind = intersectionInfo.material->getRefind();
         if (intersectionInfo.entering)
-            beta = refind;
-        else
             beta = 1/refind;
+        else
+            beta = refind;
         
         bool doTrans = false;
         
@@ -189,17 +184,23 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
         double cosThetaIn = (-1 * normal).dot(v);
         double sinThetaIn = sqrt( 1 - pow(cosThetaIn, 2));
         double sinThetaOut = beta * sinThetaIn;
+        
+        if ((sinThetaOut > 1) || (sinThetaOut < -1)) // No transmission if thetaout is greater than 1
+            return color;
+        
         double cosThetaOut = sqrt(1 - pow(sinThetaOut, 2));
         Vector3d v_trans;
+        
         if (beta* sinThetaIn == 0) {
             doTrans = true;
             v_trans = v;
         }
-        else if ((beta* sinThetaIn > 0) and (beta * sinThetaIn < 1)) {
+        if ((beta* sinThetaIn > 0) and (beta * sinThetaIn < 1)) {
             doTrans = true;
             Vector3d v_s = (v - (cosThetaIn * (-1 * normal)))/ (sinThetaIn);
             v_trans = cosThetaOut * (-1 * normal) + sinThetaOut * (v_s.getUnit());
         }
+        
         if (doTrans) {
             v_trans.normalize();
             transNewRay.setDir(v_trans);
@@ -212,13 +213,13 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
     
 	// compute transmitted ray using snell's law
     
-    // ---------------
-    // |            |
-    // |  /      \  |
-    // |  -      -  |
-    // |      3     |
-    // |            |
-    // ---------------
+    //      ---------------
+    //      |            |
+    //      |  /      \  |
+    //      |  -      -  |
+    //  _/  |      3     |   \_
+    //   \  |            |   /
+    //    \ --------------- /
 
 	return color;
 }
