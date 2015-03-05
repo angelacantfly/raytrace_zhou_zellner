@@ -36,9 +36,8 @@ Color3d PointLight::getDiffuse (Intersection& info)
     if (angleFactor > 0)
         for (int c = 0; c < 3; ++c)
         {
-            double ldterm = info.normal.dot(-direction.getUnit());
             // attenuation * spotfactor (1) * lightcolor * mdr * max(0, ldterm)
-            result[c] = a * color[c] * info.material->getDiffuse(info)[c] * max(0.0, ldterm);
+            result[c] = a * color[c] * info.material->getDiffuse(info)[c] * max(0.0, angleFactor);
         }
     result.clampTo(0, 1.0);
     return result;
