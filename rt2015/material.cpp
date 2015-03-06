@@ -7,6 +7,7 @@
 
 
 
+
    
 const Color3d Material::getDiffuse(Intersection& info)
   {
@@ -64,8 +65,13 @@ const Color3d Material::getTexture(double u, double v)
 {
     double width = texture->getWidth();
     double height = texture->getHeight();
-    double wid = (width - 1) * u;
-    double hgt = (height - 1) * v;
+    double derp;
+    double uu = modf(u, &derp);
+    double vv = modf(v, &derp);
+    
+    
+    double wid = (width - 1) * uu;
+    double hgt = (height - 1) * vv;
     Pixel texPix = texture->getSample(wid, hgt);
     return Color3d(texPix.r, texPix.g, texPix.b);
 }
