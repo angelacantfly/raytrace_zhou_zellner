@@ -28,6 +28,12 @@
 	1.0	0.0	1.0	// kshine ktrans refind
 
 
+#material -n white --
+	0.0	0.0	0.0	// ambient
+	1.0	1.0	1.0	// diffuse
+	0.0	0.0	0.0	// specular
+	0.0	0.0	0.0	// emissive
+	0.0	0.0	1.0	// kspec ktrans refind
 
 
 

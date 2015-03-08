@@ -75,6 +75,7 @@ double Triangle::intersect (Intersection& intersectionInfo)
         intersectionInfo.normal = n;
     else
         intersectionInfo.normal = -n;
+    intersectionInfo.normal.normalize();
 
     // RAY_CASTING TODO (intersection)
     // (1) determine intersection with plane (if any)
@@ -87,39 +88,44 @@ double Triangle::intersect (Intersection& intersectionInfo)
     // Texture mapping
     intersectionInfo.textured = this->textured;
     if (gamma >=0 && beta >0 && gamma + beta <= 1)
-    if (intersectionInfo.textured || material->bumpMapped())
     {
-        // FIXME: ugh, conversion consequences?
-        TexCoord2d f0 = this->t[0];
-        TexCoord2d f1 = this->t[1];
-        TexCoord2d f2 = this->t[2];
-        Point2d ff0(f0[0],f0[1]);
-        Point2d ff1(f1[0], f1[1]);
-        Point2d ff2(f2[0], f2[1]);
+        if (intersectionInfo.textured || material->bumpMapped())
+        {
+            // FIXME: ugh, conversion consequences?
+            TexCoord2d f0 = this->t[0];
+            TexCoord2d f1 = this->t[1];
+            TexCoord2d f2 = this->t[2];
+            Point2d ff0(f0[0],f0[1]);
+            Point2d ff1(f1[0], f1[1]);
+            Point2d ff2(f2[0], f2[1]);
+            
+            Vector2d t1(ff0, ff1);
+            Vector2d t2(ff0,ff2);
+            Point2d texOrigin(t[0][0], t[0][1]);
         
-        Vector2d t1(ff0, ff1);
-        Vector2d t2(ff0,ff2);
-        Point2d texOrigin(t[0][0], t[0][1]);
+            Point2d texCoord_intersect = texOrigin + beta * t1 + gamma * t2;
+            for (int c = 0; c <2; c++) {
+                while (texCoord_intersect[c] < 0) {
+                    texCoord_intersect[c] += 1;
+                }
+                while (texCoord_intersect[c] > 1) {
+                    texCoord_intersect[c] -= 1;
+                }
+            }
+            TexCoord2d coord(texCoord_intersect[0],texCoord_intersect[1]);
+//          TexCoord2d coord(gamma,beta);
+            intersectionInfo.texCoordinate = coord;
         
-        Point2d texCoord_intersect = texOrigin + beta * t1 + gamma * t2;
-        TexCoord2d coord(texCoord_intersect[0],texCoord_intersect[1]);
-//        TexCoord2d coord(gamma,beta);
-        intersectionInfo.texCoordinate = coord;
-    
-//        double phi = acos((z)/this->radius); // (-pi, pi]
-//        double theta = atan2(y, x); // [0, pi]
-//        phi = phi/M_PI;
-//        theta = ((theta/M_PI) + 1)/2;
-//        TexCoord2d coord(theta,phi);
-//        intersectionInfo.texCoordinate = coord;
-//        
-        if (material->bumpMapped()) {
-//            // Bump Mapping
-            Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
-            up.normalize();
-            Vector3d right = -intersectionInfo.normal.cross(up);
-            right.normalize();
-            intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
+            if (material->bumpMapped()) {
+                // Bump Mapping
+//                Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
+//                up.normalize();
+//                Vector3d right = -intersectionInfo.normal.cross(up);
+//                right.normalize();
+                Vector3d up = w1.getUnit();
+                Vector3d right = -w2.getUnit();
+                intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
+            }
         }
     }
 

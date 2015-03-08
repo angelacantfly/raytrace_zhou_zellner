@@ -45,7 +45,7 @@ void RayFile::raytrace (Image* image)
 	{
 		for (int i = 0; i<imageWidth; ++i)
 		{
-            if (i==imageWidth/2 && j==imageHeight/2) {
+            if (i==imageWidth/2 -20 && j==imageHeight/2 -20) {
                 cout << "stop";
             }
 
