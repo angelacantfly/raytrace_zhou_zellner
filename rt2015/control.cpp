@@ -30,6 +30,7 @@ enum {
 	M_OPTIONS_BUMPMAPS,
 	M_OPTIONS_TRANSPARENCY,
 	M_OPTIONS_BACKFACE,
+    M_OPTIONS_FISHTAIL,
 
 	M_PRINT_CONFIG,
 
@@ -67,6 +68,7 @@ int make_menu ()
     glutAddMenuEntry( "Toggle Bump Maps",		M_OPTIONS_BUMPMAPS);
   glutAddMenuEntry( "Toggle Transparency",	M_OPTIONS_TRANSPARENCY);
   glutAddMenuEntry( "Toggle Backface Culling",	M_OPTIONS_BACKFACE);
+    glutAddMenuEntry("Toggle Fishtail Effect", M_OPTIONS_FISHTAIL);
 
   int main = glutCreateMenu(menu_func);
   glutAddSubMenu  ( "File",			file);
@@ -174,6 +176,12 @@ void menu_func (int value)
     cerr << "Backface Culling " << (options->backface?"on":"off") << endl;
     glutPostRedisplay();
     break;
+
+      case M_OPTIONS_FISHTAIL:
+          options->fishtail = !options->fishtail;
+          cerr<<"Fishtail " << (options->fishtail?"on":"off")<<endl;
+          glutPostRedisplay();
+          break;
 
   default:
     break;

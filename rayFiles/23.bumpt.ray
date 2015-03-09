@@ -26,7 +26,7 @@
 	0.9	0.9	0.9	// specular
 	0.0	0.0	0.0	// emissive
 	1.0	0.0	1.0	// kshine ktrans refind
-#material -n rock -u Rock.bmp  --
+#material -n rock -u z.bmp  --
 	0.7	0.7	0.7	// ambient
 	.6	.6	.6	// diffuse
 	0.0	0.0	0.0	// specular

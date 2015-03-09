@@ -118,12 +118,12 @@ double Triangle::intersect (Intersection& intersectionInfo)
         
             if (material->bumpMapped()) {
                 // Bump Mapping
-//                Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
-//                up.normalize();
-//                Vector3d right = -intersectionInfo.normal.cross(up);
-//                right.normalize();
-                Vector3d up = w1.getUnit();
-                Vector3d right = -w2.getUnit();
+                Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
+                up.normalize();
+                Vector3d right = -intersectionInfo.normal.cross(up);
+                right.normalize();
+//                Vector3d up = w1.getUnit();
+//                Vector3d right = -w2.getUnit();
                 intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
             }
         }

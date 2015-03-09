@@ -34,6 +34,7 @@ struct Options_
 	bool		transparency;
 	bool		backface;
 	bool		quiet;
+    bool        fishtail;
 };
 
 

@@ -61,11 +61,45 @@ void RayFile::raytrace (Image* image)
             theRay.setPos(cameraPos);
             currentDir = currentDir.getUnit();
             theRay.setDir(currentDir);
+        
+            
             
 			// get the color at the closest intersection point
 
 			Color3d theColor = getColor(theRay, options->recursiveDepth);
+            
+            
+            
+            // Jittering
+            if (options->jitter != 0)
+            {
+                for ( int q = 0; q < options->jitter; ++q)
+                {
+                    double rx, ry;
+                    rx = rand() %2001;
+                    ry = rand() %2001;
+                    rx = rx / 1000.0 - 1.0;
+                    ry = ry / 1000.0 - 1.0;
+                    double random_dx,random_dy;
+                    random_dx = rx ;
+                    random_dy = ry ;
+                    
+                    Rayd randomRay;
+                    randomRay.setPos(cameraPos);
+                    Point3d randomDest = currentPoint;
+                    randomDest[0] = randomDest[0] + random_dx;
+                    randomDest[1] = randomDest[1] + random_dy;
+                    Vector3d randomDir(cameraPos, randomDest);
+                    randomDir.normalize();
+                    randomRay.setDir(randomDir);
+                    Color3d nearbyColor = getColor(randomRay, options->recursiveDepth);
+                    if (nearbyColor != Color3d(0,0,0))
+                        theColor = (theColor + nearbyColor) /2;
+                }
+            }
+            
             theColor.clampTo(0.0, 1.0);
+            
 			// the image class doesn't know about color3d so we have to convert to pixel
 			// update pixel
 			Pixel p;
@@ -73,12 +107,45 @@ void RayFile::raytrace (Image* image)
 			p.r = theColor[0];
 			p.g = theColor[1];
 			p.b = theColor[2];
+            
+            if (options->fishtail) {
+                double width = imageWidth;
+                double height = imageHeight;
+                //normalize (x,y) to (nx, ny) to be in range [-1,1]
+                double nx,ny;
+                nx = (((double)i) - width/2)/(width/2);
+                ny = (j - height/2)/(height/2);
+                
+                //calculate distance from (nx, ny) to center (0,0)
+                double r = sqrt(pow(nx, 2) + pow(ny, 2));
+                
+                //convert (nx,ny) to polar coordinates
+                double theta = atan2(j, i);
+                //calculate new distance from center on the sphere surface
+                if (r > 0 && r < 1)
+                {
+                    double r_new = r + (1 - sqrt(1 -pow(r, 2))) / 2;
+                    if (r_new >= 0 && r_new <= 1)
+                    {
+                        //translate (nx, ny) back to screen coordinates (x',y')
+                        nx = r_new * cos(theta);
+                        ny = r_new * sin(theta);
+                        nx = (nx + 1) * width/2.0;
+                        ny = (ny + 1) * height/2.0;
+                        image->setPixel(nx, ny, p);
+                    }
+                }
+                
+            }
+            else
+                image->setPixel(i, j, p);
 
-			image->setPixel(i, j, p);
+            
 
 		} // end for-i
 
-		// update display 
+        
+		// update display
 		// you don't need to touch this part!
 
 		if (options->progressive)
@@ -94,9 +161,23 @@ void RayFile::raytrace (Image* image)
 				nextMilestone -= (1.0 / 79.0);
 			}
 		}
+        
+        
 	} // end for-j
+    
+
 }
 
+void CalcUV(Point3d p,double *u,double *v)
+{
+    double r,phi;
+    r = atan2(sqrt(p[0]*p[0]+p[1]*p[1]),p[2]);
+    r /= M_PI;  /* -0.5 .. 0.5 */
+    phi = atan2(p[2],p[1]);
+    
+    *u = r * cos(phi) + 0.5;
+    *v = r * sin(phi) + 0.5;
+}
 
 /* 
 * get the color of the scene with respect to theRay
@@ -209,6 +290,7 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
         color.clampTo(0, 1);
     }
     
+
 	// compute transmitted ray using snell's law
     
     //      ---------------
