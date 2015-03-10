@@ -18,15 +18,186 @@ Box::~Box ()
 
 double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
 {
-
-	return -1;
+    Vector3d l = ray.getDir();
+    double d = -1;
+    
+    if (l.dot(n) != 0) {
+        // there is a single pt of intersection
+        Vector3d diff = p0-ray.getPos();
+        d = diff.dot(n) / l.dot(n);
+//        cout << "d is: " << d << endl;
+        return d;
+    }
+    // ray and plane are parallel
+    return 0;
 }
 
 
 double Box::intersect (Intersection& info)
 {
+    // ray-slab intersection approach adapted from
+    // http://tavianator.com/2011/05/fast-branchless-raybounding-box-intersections/
+    // Axis-aligned bounding boxes (AABBs)
+    // the box is the space within the three bounding plane pairs
+    Vector3d dir = info.theRay.getDir();
+    Vector3d cam = info.theRay.getPos();
+    double invx = 1.0/dir[0];
+    double invy = 1.0/dir[1];
+    double invz = 1.0/dir[2];
+    
+    // Left bottom is minimal, right top is maximal
+    int l = size[0];
+    int w = size[2];
+    int h = size[1];
 
-	return -1;
+    Point3d lb(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
+    Point3d rt(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
+    
+    // x boundaries
+    double tx1 = (lb[0] - cam[0]) * invx;
+    double tx2 = (rt[0] - cam[0]) * invx;
+    // y boundaries
+    double ty1 = (lb[1] - cam[1]) * invy;
+    double ty2 = (rt[1] - cam[1]) * invy;
+    // z boundaries
+    double tz1 = (lb[2] - cam[2]) * invz;
+    double tz2 = (rt[2] - cam[2]) * invz;
+
+    // the largest minimum bounds and the smallest maximum bounds
+    float tmin = max(max(min(tx1, tx2), min(ty1, ty2)), min(tz1, tz2));
+    float tmax = min(min(max(tx1, tx2), max(ty1, ty2)), max(tz1, tz2));
+//    cout << "tmin: " << tmin << " tmax: " << tmax << endl;
+
+    // case 1: the ray intersects AABB but the tmax is behind the camera
+    // case 2: the ray does not intersect AABB
+    if (tmin > tmax) {
+       // info.normal = Vector3d(0,1,0);
+        //cout << info.normal << endl;
+        return -1;
+        }
+    
+    Point3d topfrontright(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
+    Point3d topfrontleft(center[0]-l/2.0,center[1]+h/2.0,center[2]+w/2.0);
+    Point3d topbackright(center[0]+l/2.0,center[1]+h/2.0,center[2]-w/2.0);
+    Point3d topbackleft(center[0]-l/2.0,center[1]+h/2.0,center[2]+w/2.0);
+    Point3d botfrontright(center[0]+l/2.0,center[1]-h/2.0,center[2]+w/2.0);
+    Point3d botfrontleft(center[0]-l/2.0,center[1]-h/2.0,center[2]+w/2.0);
+    Point3d botbackright(center[0]+l/2.0,center[1]-h/2.0,center[2]-w/2.0);
+    Point3d botbackleft(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
+//    cout << topfrontright << "/" << topfrontleft << "/" << topbackright << "/" << topbackleft << endl;
+//    cout << botfrontright << "/" << botfrontleft << "/" << botbackright << "/" << botbackleft << endl;
+//    
+//    Vector3d topleft = Vector3d(topbackleft-topfrontleft);
+//    Vector3d topback = Vector3d(topbackleft-topbackright);
+//    Vector3d topright = Vector3d(topfrontright-topbackright);
+//    Vector3d topfront = Vector3d(topfrontright-topfrontleft);
+    Vector3d botleft = Vector3d(botfrontleft-botbackleft);
+    Vector3d botback = Vector3d(botbackright-botbackleft);
+    Vector3d botright = Vector3d(botbackright-botfrontright);
+    Vector3d botfront = Vector3d(botfrontright-botfrontleft);
+//    Vector3d leftfront = Vector3d(topfrontleft-botfrontleft);
+//    Vector3d leftback = Vector3d(topbackleft-botbackleft);
+    Vector3d rightfront1 = Vector3d(topfrontright-botfrontright);
+    Vector3d rightfront2 = Vector3d(topfrontleft-botfrontleft);
+//    Vector3d rightback = Vector3d(botbackleft-topbackleft);
+
+
+    Vector3d frontnorm = rightfront2.cross(botfront);
+    Vector3d backnorm = botfront.cross(rightfront2);
+    Vector3d leftnorm = botright.cross(rightfront1);
+    Vector3d rightnorm = rightfront1.cross(botright);
+    Vector3d topnorm = botback.cross(botleft);
+    Vector3d botnorm = botleft.cross(botback);
+    Vector3d norms [6] = {frontnorm, leftnorm, rightnorm, topnorm, backnorm, botnorm};
+//    for (int n=0; n<6; n++){
+//        cout << norms[n]<< endl;
+//    }
+    
+    for (int j=0; j<6; j++) {
+//        cout << "norm:: " << norms[j] << endl;
+        double dInt = planeIntersect(info.theRay, info.iCoordinate, norms[j].normalize());
+//        cout << dInt << endl;
+        Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
+        cout << "intersection: " << i << endl;
+        
+        Vector3d n;
+        n = norms[j];
+        if (n.dot(info.theRay.getDir()) > 0)
+            n = -n;
+        n.normalize();
+        info.normal = n;
+        
+        if (info.normal.dot(info.theRay.getDir()) < 0)
+            info.entering = false;
+        else info.entering = true;
+        
+        // If there is a single-point plane intersection, is it within the rectangular prism?
+//        if (dInt != 0 && i[0]>lb[0] && i[0]<rt[0] && i[1]>lb[1] && i[1]<rt[1] && i[2]>lb[2] && i[2]<rt[2]) {
+        if (i[0]>tx1 || i[1]>ty1 || i[2]>tz1 || i[0]<tx2) {
+            cout << "in POS x bounds" << endl;
+            cout << j << "/" << norms[j] <<endl;
+            info.normal = norms[j].normalize();
+            return 1;
+        }
+        
+        info.material = this->material;
+        
+        // Texture mapping
+        info.textured = this->textured;
+        if (info.textured || material->bumpMapped())
+        {
+//            double x = intersectionPoint[0];
+//            double y = intersectionPoint[1];
+//            double z = intersectionPoint[2];
+//            double phi = acos((z)/this->radius); // (-pi, pi]
+//            double theta = atan2(y, x); // [0, pi]
+//            phi = phi/M_PI;
+//            theta = ((theta/M_PI) + 1)/2;
+//            TexCoord2d coord(theta,phi);
+//            intersectionInfo.texCoordinate = coord;
+//            
+            if (material->bumpMapped()) {
+//                // Bump Mapping
+//                Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
+//                up.normalize();
+//                Vector3d right = -intersectionInfo.normal.cross(up);
+//                //            Vector3d right = up.cross(intersectionInfo.normal);
+//                right.normalize();
+//                intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
+            }
+        }
+
+//}
+//                // then the intersection is in the box
+//                info.iCoordinate = i;
+//                // entering
+//            cout << norms[j].dot(info.theRay.getDir()) << endl;
+//            if (norms[j].dot(info.theRay.getDir()) > 0) {
+//                    cout << "ENTERING" << endl;
+//                    info.normal = -norms[j];
+//            }
+//                else
+//                    info.normal = norms[j];
+//                return 1;
+            }
+            
+            
+            
+           // info.normal = -info.theRay.getDir();
+            
+//            info.normal = Vector3d(0,1,0);
+//            cout << "normal: " << info.normal<< "\n";
+    
+
+//    return tmin; // the length of the vector until intersection
+//    if (tmax < tmin) {
+//        cout << "TRUE" << endl;
+//        return 1;
+//    }
+//    cout << "TMIN " << tmin <<endl;
+//    return -1;
+    
+    return -1;
 }
 
 

@@ -205,6 +205,7 @@ Color3d RayFile::getColor(Rayd theRay, int rDepth)
     color += intersectionInfo.material->getEmissive();
 	// add ambient term
     color += ambient * intersectionInfo.material->getAmbient();
+
     
     // add contribution from each light
     for (VECTOR(Light*)::iterator theLight = lights.begin(); theLight != lights.end(); ++theLight)
