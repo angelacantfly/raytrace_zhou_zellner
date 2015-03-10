@@ -101,51 +101,63 @@ double Box::intersect (Intersection& info)
     Vector3d rightfront2 = Vector3d(topfrontleft-botfrontleft);
 //    Vector3d rightback = Vector3d(botbackleft-topbackleft);
 
-
-    Vector3d frontnorm = rightfront2.cross(botfront);
-    Vector3d backnorm = botfront.cross(rightfront2);
-    Vector3d leftnorm = botright.cross(rightfront1);
-    Vector3d rightnorm = rightfront1.cross(botright);
-    Vector3d topnorm = botback.cross(botleft);
-    Vector3d botnorm = botleft.cross(botback);
+    
+    Vector3d frontnorm = Vector3d(topfrontleft-botfrontleft).cross(Vector3d(botfrontright-botfrontleft));
+    Vector3d backnorm = Vector3d(topbackright-botbackright).cross(Vector3d(botbackleft-botbackright));
+    Vector3d leftnorm = Vector3d(topbackleft-botbackleft).cross(Vector3d(botfrontleft-botbackleft));
+    Vector3d rightnorm = Vector3d(topfrontright-botfrontright).cross(Vector3d(botbackright-botfrontright));
+    Vector3d topnorm = Vector3d(topbackleft-topfrontleft).cross(Vector3d(topfrontright-topfrontleft));
+    Vector3d botnorm = Vector3d(botfrontleft-botbackleft).cross(Vector3d(botbackright-botbackleft));
     Vector3d norms [6] = {frontnorm, leftnorm, rightnorm, topnorm, backnorm, botnorm};
+//    Vector3d frontnorm = rightfront2.cross(botfront);
+//    Vector3d backnorm = botfront.cross(rightfront2);
+//    Vector3d leftnorm = botright.cross(rightfront1);
+//    Vector3d rightnorm = rightfront1.cross(botright);
+//    Vector3d topnorm = botback.cross(botleft);
+//    Vector3d botnorm = botleft.cross(botback);
+//    Vector3d norms [6] = {frontnorm, leftnorm, rightnorm, topnorm, backnorm, botnorm};
 //    for (int n=0; n<6; n++){
 //        cout << norms[n]<< endl;
 //    }
-    
+
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
-        double dInt = planeIntersect(info.theRay, info.iCoordinate, norms[j].normalize());
+        double dInt = planeIntersect(info.theRay, info.iCoordinate, norms[j]);
 //        cout << dInt << endl;
         Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
-        cout << "intersection: " << i << endl;
-        
+        info.iCoordinate = i;
+//        cout << "intersection: " << i << endl;
+//        cout << "j: " << j << endl;
         Vector3d n;
         n = norms[j];
-        if (n.dot(info.theRay.getDir()) > 0)
+        if (n.dot(info.theRay.getDir()) < 0)
             n = -n;
         n.normalize();
         info.normal = n;
+        if (true){
+//        if (i[0]<=rt[0]) {
+            //        if (i[0]>tx1 || i[1]>ty1 || i[2]>tz1 || i[0]<tx2) {
+            //            cout << "in POS x bounds" << endl;
+            info.material = this->material;
+            
+            info.textured = this->textured;
+            //  cout << "tmin: " << tmin << endl;
+            return tmin;
+            //        }
+
         
         if (info.normal.dot(info.theRay.getDir()) < 0)
             info.entering = false;
         else info.entering = true;
         
         // If there is a single-point plane intersection, is it within the rectangular prism?
-//        if (dInt != 0 && i[0]>lb[0] && i[0]<rt[0] && i[1]>lb[1] && i[1]<rt[1] && i[2]>lb[2] && i[2]<rt[2]) {
-        if (i[0]>tx1 || i[1]>ty1 || i[2]>tz1 || i[0]<tx2) {
-            cout << "in POS x bounds" << endl;
-            cout << j << "/" << norms[j] <<endl;
-            info.normal = norms[j].normalize();
-            return 1;
-        }
-        
-        info.material = this->material;
-        
+//        if (dInt != 0) {
+               }
+    
         // Texture mapping
-        info.textured = this->textured;
-        if (info.textured || material->bumpMapped())
-        {
+        
+//        if (info.textured || material->bumpMapped())
+//        {
 //            double x = intersectionPoint[0];
 //            double y = intersectionPoint[1];
 //            double z = intersectionPoint[2];
@@ -156,7 +168,7 @@ double Box::intersect (Intersection& info)
 //            TexCoord2d coord(theta,phi);
 //            intersectionInfo.texCoordinate = coord;
 //            
-            if (material->bumpMapped()) {
+//            if (material->bumpMapped()) {
 //                // Bump Mapping
 //                Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
 //                up.normalize();
@@ -164,8 +176,8 @@ double Box::intersect (Intersection& info)
 //                //            Vector3d right = up.cross(intersectionInfo.normal);
 //                right.normalize();
 //                intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
-            }
-        }
+//            }
+//        }
 
 //}
 //                // then the intersection is in the box
