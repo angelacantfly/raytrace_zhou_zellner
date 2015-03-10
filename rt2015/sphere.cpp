@@ -94,16 +94,20 @@ double Sphere::intersect (Intersection& intersectionInfo)
     intersectionInfo.iCoordinate = intersectionPoint;
     
     Vector3d normalV = Vector3d(center, intersectionPoint);
+    
+    // See if the ray is entering the sphere FIXME:::
+    if (normalV.dot(intersectionInfo.theRay.getDir()) < 0)
+        intersectionInfo.entering = true;
+    else intersectionInfo.entering = false;
+    
+   
     // Checkig for correct normal FIXME:::
     if (normalV.dot(theRay.getDir()) > 0)
         normalV = -normalV;
     normalV.normalize();
     intersectionInfo.normal = normalV;
     
-    // See if the ray is entering the sphere FIXME:::
-    if (intersectionInfo.normal.dot(intersectionInfo.theRay.getDir()) < 0)
-        intersectionInfo.entering = false;
-    else intersectionInfo.entering = true;
+    
     
     intersectionInfo.material = this->material;
     
