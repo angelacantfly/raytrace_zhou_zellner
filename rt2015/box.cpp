@@ -19,9 +19,9 @@ Box::~Box ()
 double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
 {
     Vector3d l = ray.getDir();
-    double d = -1;
+    double d = 0;
     
-    if (l.dot(n) > exp(-5) || l.dot(n) < exp(-5)) {
+    if (l.dot(n) != 0) {
         // there is a single pt of intersection
         Vector3d diff = p0-ray.getPos();
         d = diff.dot(n) / l.dot(n);
@@ -74,14 +74,23 @@ double Box::intersect (Intersection& info)
         return -1;
         }
     
+    
+    // CENTERPOINTS
+    Point3d topcenter(center[0],center[1]+h/2.0,center[2]);
+    Point3d botcenter(center[0],center[1]-h/2.0,center[2]);
+    Point3d rightcenter(center[0]+l/2.0,center[1],center[2]);
+    Point3d leftcenter(center[0]-l/2.0,center[1],center[2]);
+    Point3d frontcenter(center[0],center[1],center[2]+w/2.0);
+    Point3d backcenter(center[0],center[1],center[2]-w/2.0);
+    Point3d centerpoints[6] = {frontcenter, leftcenter, topcenter, rightcenter, backcenter, botcenter};
+    
+    // VERTICES
     Point3d topfrontright(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
     Point3d topfrontleft(center[0]-l/2.0,center[1]+h/2.0,center[2]+w/2.0);
     Point3d topbackright(center[0]+l/2.0,center[1]+h/2.0,center[2]-w/2.0);
-    
     Point3d botfrontright(center[0]+l/2.0,center[1]-h/2.0,center[2]+w/2.0);
     Point3d botfrontleft(center[0]-l/2.0,center[1]-h/2.0,center[2]+w/2.0);
     Point3d botbackright(center[0]+l/2.0,center[1]-h/2.0,center[2]-w/2.0);
-    
     Point3d topbackleft(center[0]-l/2.0,center[1]+h/2.0,center[2]-w/2.0);
     Point3d botbackleft(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
 //    cout << topfrontright << "/" << topfrontleft << "/" << topbackright << "/" << topbackleft << endl;
@@ -102,89 +111,37 @@ double Box::intersect (Intersection& info)
 
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
-        double dInt = planeIntersect(info.theRay, info.iCoordinate, norms[j]);
-//        cout << j << endl;
-//        cout << dInt << endl;
+        double dInt = planeIntersect(info.theRay, centerpoints[j], norms[j]);
+        if (dInt != 0) {
 //        cout << dInt << " " << j <<endl;
-        Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
+            Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
 //        cout << i << " " << j << endl;
-        info.iCoordinate = i;
-        info.material = this->material;
-        info.textured = this->textured;
+            info.iCoordinate = i;
+            info.material = this->material;
+            info.textured = this->textured;
 //        cout << "intersection: " << i << endl;
 //        cout << "j: " << j << endl;
-        Vector3d n;
-        n = norms[j];
-        if (n.dot(info.theRay.getDir()) < 0) {
-            info.entering = true;
-        }
-        else
-        {
-            n = -n; // FIXME: 
-            info.entering = false;
-        }
+            Vector3d n;
+            n = norms[j];
+            if (n.dot(info.theRay.getDir()) < 0) {
+                info.entering = true;
+            }
+            else
+            {
+                n = -n; // FIXME:
+                info.entering = false;
+            }
         
-        n.normalize();
-        info.normal = n;
-        
-//        if (info.entering){
-//        if (i[0]<=rt[0]) {
-            //        if (i[0]>tx1 || i[1]>ty1 || i[2]>tz1 || i[0]<tx2) {
-            //            cout << "in POS x bounds" << endl;
-            
-            //  cout << "tmin: " << tmin << endl;
-//            return tmin;
-//        }
+            n.normalize();
+            info.normal = n;
         
 //        if (i[0]>(center[0]-l/2.0) && i[1]>(center[1]-h/2.0) && i[2]>(center[2]-w/2.0) && i[0]<(center[0]+l/2.0) && i[1]<(center[1]+h/2.0) && i[2]>(center[2]+w/2.0))
 //        if ((i[0]>lb[0] && i[1]>lb[1] )|| (i[2]>lb[2] && i[0]<rt[0]) || (i[1]<rt[1] && i[2]>rt[2]))
 //            return tmin;
-    
-        // If there is a single-point plane intersection, is it within the rectangular prism?
-//        if (dInt != 0)
-//            return tmin;
-    
-        // Texture mapping
-        
-//        if (info.textured || material->bumpMapped())
-//        {
-//            double x = intersectionPoint[0];
-//            double y = intersectionPoint[1];
-//            double z = intersectionPoint[2];
-//            double phi = acos((z)/this->radius); // (-pi, pi]
-//            double theta = atan2(y, x); // [0, pi]
-//            phi = phi/M_PI;
-//            theta = ((theta/M_PI) + 1)/2;
-//            TexCoord2d coord(theta,phi);
-//            intersectionInfo.texCoordinate = coord;
-//            
-//            if (material->bumpMapped()) {
-//                // Bump Mapping
-//                Vector3d up = Vector3d(0,1,0) - intersectionInfo.normal.dot(Vector3d(0,1,0)) * intersectionInfo.normal;
-//                up.normalize();
-//                Vector3d right = -intersectionInfo.normal.cross(up);
-//                //            Vector3d right = up.cross(intersectionInfo.normal);
-//                right.normalize();
-//                intersectionInfo.material->bumpNormal(intersectionInfo.normal, up, right, intersectionInfo, this->bumpScale);
-//            }
-//        }
-        
-           // info.normal = -info.theRay.getDir();
-            
-//            info.normal = Vector3d(0,1,0);
-//            cout << "normal: " << info.normal<< "\n";
-//        return 1;
-    }
 
-//    return tmin; // the length of the vector until intersection
-//    if (tmax < tmin) {
-//        cout << "TRUE" << endl;
-//        return 1;
-//    }
-//    cout << "TMIN " << tmin <<endl;
-//    return -1;
-//    cout << "HERE"<< endl;
-//    return tmax;
+
+        }
+    }
     return 1;
 }
 
