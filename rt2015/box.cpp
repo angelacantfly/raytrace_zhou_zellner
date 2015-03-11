@@ -77,28 +77,37 @@ double Box::intersect (Intersection& info)
     Point3d topfrontright(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
     Point3d topfrontleft(center[0]-l/2.0,center[1]+h/2.0,center[2]+w/2.0);
     Point3d topbackright(center[0]+l/2.0,center[1]+h/2.0,center[2]-w/2.0);
-    Point3d topbackleft(center[0]-l/2.0,center[1]+h/2.0,center[2]+w/2.0);
+    
     Point3d botfrontright(center[0]+l/2.0,center[1]-h/2.0,center[2]+w/2.0);
     Point3d botfrontleft(center[0]-l/2.0,center[1]-h/2.0,center[2]+w/2.0);
     Point3d botbackright(center[0]+l/2.0,center[1]-h/2.0,center[2]-w/2.0);
+    
+    Point3d topbackleft(center[0]-l/2.0,center[1]+h/2.0,center[2]-w/2.0);
     Point3d botbackleft(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
 //    cout << topfrontright << "/" << topfrontleft << "/" << topbackright << "/" << topbackleft << endl;
 //    cout << botfrontright << "/" << botfrontleft << "/" << botbackright << "/" << botbackleft << endl;
     
     Vector3d frontnorm = Vector3d(topfrontleft-botfrontleft).cross(Vector3d(botfrontright-botfrontleft));
-    Vector3d backnorm = Vector3d(topbackright-botbackright).cross(Vector3d(botbackleft-botbackright));
+//    Vector3d backnorm = Vector3d(topbackright-botbackright).cross(Vector3d(botbackleft-botbackright));
+    Vector3d  backnorm = - frontnorm;
     Vector3d leftnorm = Vector3d(topbackleft-botbackleft).cross(Vector3d(botfrontleft-botbackleft));
-    Vector3d rightnorm = Vector3d(topfrontright-botfrontright).cross(Vector3d(botbackright-botfrontright));
+//    Vector3d rightnorm = Vector3d(topfrontright-botfrontright).cross(Vector3d(botbackright-botfrontright));
+    Vector3d rightnorm = -leftnorm;
     Vector3d topnorm = Vector3d(topbackleft-topfrontleft).cross(Vector3d(topfrontright-topfrontleft));
-    Vector3d botnorm = Vector3d(botfrontleft-botbackleft).cross(Vector3d(botbackright-botbackleft));
-    Vector3d norms [6] = {frontnorm, leftnorm, topnorm, rightnorm, backnorm, botnorm};
+//    Vector3d botnorm = Vector3d(botfrontleft-botbackleft).cross(Vector3d(botbackright-botbackleft));
+    Vector3d botnorm = -topnorm;
+    Vector3d norms[6] = {frontnorm, leftnorm, topnorm, rightnorm, backnorm, botnorm};
+//    for (int i = 0; i < 6; ++i)
+//        cout << i << " " << norms[i] <<endl;
 
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
         double dInt = planeIntersect(info.theRay, info.iCoordinate, norms[j]);
 //        cout << j << endl;
 //        cout << dInt << endl;
+//        cout << dInt << " " << j <<endl;
         Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
+//        cout << i << " " << j << endl;
         info.iCoordinate = i;
         info.material = this->material;
         info.textured = this->textured;
@@ -107,16 +116,16 @@ double Box::intersect (Intersection& info)
         Vector3d n;
         n = norms[j];
         if (n.dot(info.theRay.getDir()) < 0) {
-            n = -n;
             info.entering = true;
         }
         else
+        {
+            n = -n; // FIXME: 
             info.entering = false;
+        }
         
         n.normalize();
         info.normal = n;
-        
-        
         
 //        if (info.entering){
 //        if (i[0]<=rt[0]) {
@@ -127,10 +136,9 @@ double Box::intersect (Intersection& info)
 //            return tmin;
 //        }
         
-//        if (i[0]>tx1 && i[1]>ty1 && i[2]>tz1 && i[0]<tx2 && i[1]<ty2 && i[2]>tz2)
-        
-        if (i[0]>lb[0] && i[1]>lb[1] || i[2]>lb[2] && i[0]<rt[0] || i[1]<rt[1] && i[2]>rt[2])
-            return tmin;
+//        if (i[0]>(center[0]-l/2.0) && i[1]>(center[1]-h/2.0) && i[2]>(center[2]-w/2.0) && i[0]<(center[0]+l/2.0) && i[1]<(center[1]+h/2.0) && i[2]>(center[2]+w/2.0))
+//        if ((i[0]>lb[0] && i[1]>lb[1] )|| (i[2]>lb[2] && i[0]<rt[0]) || (i[1]<rt[1] && i[2]>rt[2]))
+//            return tmin;
     
         // If there is a single-point plane intersection, is it within the rectangular prism?
 //        if (dInt != 0)
@@ -165,6 +173,7 @@ double Box::intersect (Intersection& info)
             
 //            info.normal = Vector3d(0,1,0);
 //            cout << "normal: " << info.normal<< "\n";
+//        return 1;
     }
 
 //    return tmin; // the length of the vector until intersection
@@ -175,7 +184,8 @@ double Box::intersect (Intersection& info)
 //    cout << "TMIN " << tmin <<endl;
 //    return -1;
 //    cout << "HERE"<< endl;
-    return tmax;
+//    return tmax;
+    return 1;
 }
 
 
