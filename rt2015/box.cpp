@@ -19,7 +19,7 @@ Box::~Box ()
 double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
 {
     Vector3d l = ray.getDir();
-    double d = 0;
+    double d = -1;
     
     if (l.dot(n) != 0) {
         // there is a single pt of intersection
@@ -28,7 +28,6 @@ double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
     }
     if (d >= 0)
         return d;
-    // ray and plane are parallel
     else
         return 0;
 }
@@ -36,45 +35,10 @@ double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
 
 double Box::intersect (Intersection& info)
 {
-    // ray-slab intersection approach adapted from
-    // http://tavianator.com/2011/05/fast-branchless-raybounding-box-intersections/
-    // Axis-aligned bounding boxes (AABBs)
-    // the box is the space within the three bounding plane pairs
-//    Vector3d dir = info.theRay.getDir();
-//    Vector3d cam = info.theRay.getPos();
-//    double invx = 1.0/dir[0];
-//    double invy = 1.0/dir[1];
-//    double invz = 1.0/dir[2];
-    
     // Left bottom is minimal, right top is maximal
     int l = size[0];
     int w = size[2];
     int h = size[1];
-
-//    Point3d lb(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
-//    Point3d rt(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
-////    cout << lb << " / " << rt << endl;
-//    // x boundaries
-//    double tx1 = (lb[0] - cam[0]) * invx;
-//    double tx2 = (rt[0] - cam[0]) * invx;
-//    // y boundaries
-//    double ty1 = (lb[1] - cam[1]) * invy;
-//    double ty2 = (rt[1] - cam[1]) * invy;
-//    // z boundaries
-//    double tz1 = (lb[2] - cam[2]) * invz;
-//    double tz2 = (rt[2] - cam[2]) * invz;
-//
-//    // the largest minimum bounds and the smallest maximum bounds
-//    float tmin = max(max(min(tx1, tx2), min(ty1, ty2)), min(tz1, tz2));
-//    float tmax = min(min(max(tx1, tx2), max(ty1, ty2)), max(tz1, tz2));
-////    cout << "tmin: " << tmin << " tmax: " << tmax << endl;
-//    // case 1: the ray intersects AABB but the tmax is behind the camera
-//    // case 2: the ray does not intersect AABB
-//    if (tmin > tmax) {
-////        cout << "behind camera" << endl;
-//        return -1;
-//        }
-//    
     
     // CENTERPOINTS
     Point3d topcenter(center[0],center[1]+h/2.0,center[2]);
@@ -94,15 +58,17 @@ double Box::intersect (Intersection& info)
     Vector3d norms[6] = {frontnorm, leftnorm, topnorm, rightnorm, backnorm, botnorm};
 
     double alpha = -1;
-    double index = 0;
     
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
         double dInt = planeIntersect(info.theRay, centerpoints[j], norms[j]);
         // dInt should be the shortest one we can get because we want the closest intersection
-        if (dInt != -1 && dInt < alpha) {
+        cout << dInt << endl;
+        if (dInt != -1 && dInt > alpha) {
+            cout << "HERE" << endl;
             Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
             info.iCoordinate = i;
+            cout << info.iCoordinate << endl;
             
             info.material = this->material;
             info.textured = this->textured;
@@ -121,13 +87,8 @@ double Box::intersect (Intersection& info)
             n.normalize();
             info.normal = n;
         }
-        
-        Vector3d intersectVect = Vector3d(info.iCoordinate-info.theRay.getPos()); // SHOULD THIS JUST BE THERAY? DO WE SET THAT ABOVE
-        index++;
-        return intersectVect.length();
-        
+        return Vector3d(info.iCoordinate-info.thRay.getPos()).length();
     }
-    index++;
     return -1;
 }
 
