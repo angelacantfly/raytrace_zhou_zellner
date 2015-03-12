@@ -73,6 +73,7 @@ void RayFile::raytrace (Image* image)
             // Jittering
             if (options->jitter != 0)
             {
+                cout << "jitter" << endl;
                 for ( int q = 0; q < options->jitter; ++q)
                 {
                     double rx, ry;
@@ -98,7 +99,7 @@ void RayFile::raytrace (Image* image)
                 }
             }
             
-            theColor.clampTo(0.0, 1.0);
+            theColor.clampTo(0, 1);
             
 			// the image class doesn't know about color3d so we have to convert to pixel
 			// update pixel
@@ -107,6 +108,7 @@ void RayFile::raytrace (Image* image)
 			p.r = theColor[0];
 			p.g = theColor[1];
 			p.b = theColor[2];
+        
             
             if (options->fishtail) {
                 double width = imageWidth;

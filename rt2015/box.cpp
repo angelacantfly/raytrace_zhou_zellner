@@ -25,8 +25,9 @@ double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
         // there is a single pt of intersection
         Vector3d diff = p0-ray.getPos();
         d = diff.dot(n) / l.dot(n);
-        return d;
     }
+    if (d >= 0)
+        return d;
     // ray and plane are parallel
     else
         return 0;
@@ -39,41 +40,41 @@ double Box::intersect (Intersection& info)
     // http://tavianator.com/2011/05/fast-branchless-raybounding-box-intersections/
     // Axis-aligned bounding boxes (AABBs)
     // the box is the space within the three bounding plane pairs
-    Vector3d dir = info.theRay.getDir();
-    Vector3d cam = info.theRay.getPos();
-    double invx = 1.0/dir[0];
-    double invy = 1.0/dir[1];
-    double invz = 1.0/dir[2];
+//    Vector3d dir = info.theRay.getDir();
+//    Vector3d cam = info.theRay.getPos();
+//    double invx = 1.0/dir[0];
+//    double invy = 1.0/dir[1];
+//    double invz = 1.0/dir[2];
     
     // Left bottom is minimal, right top is maximal
     int l = size[0];
     int w = size[2];
     int h = size[1];
 
-    Point3d lb(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
-    Point3d rt(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
-//    cout << lb << " / " << rt << endl;
-    // x boundaries
-    double tx1 = (lb[0] - cam[0]) * invx;
-    double tx2 = (rt[0] - cam[0]) * invx;
-    // y boundaries
-    double ty1 = (lb[1] - cam[1]) * invy;
-    double ty2 = (rt[1] - cam[1]) * invy;
-    // z boundaries
-    double tz1 = (lb[2] - cam[2]) * invz;
-    double tz2 = (rt[2] - cam[2]) * invz;
-
-    // the largest minimum bounds and the smallest maximum bounds
-    float tmin = max(max(min(tx1, tx2), min(ty1, ty2)), min(tz1, tz2));
-    float tmax = min(min(max(tx1, tx2), max(ty1, ty2)), max(tz1, tz2));
-//    cout << "tmin: " << tmin << " tmax: " << tmax << endl;
-    // case 1: the ray intersects AABB but the tmax is behind the camera
-    // case 2: the ray does not intersect AABB
-    if (tmin > tmax) {
-//        cout << "behind camera" << endl;
-        return -1;
-        }
-    
+//    Point3d lb(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
+//    Point3d rt(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
+////    cout << lb << " / " << rt << endl;
+//    // x boundaries
+//    double tx1 = (lb[0] - cam[0]) * invx;
+//    double tx2 = (rt[0] - cam[0]) * invx;
+//    // y boundaries
+//    double ty1 = (lb[1] - cam[1]) * invy;
+//    double ty2 = (rt[1] - cam[1]) * invy;
+//    // z boundaries
+//    double tz1 = (lb[2] - cam[2]) * invz;
+//    double tz2 = (rt[2] - cam[2]) * invz;
+//
+//    // the largest minimum bounds and the smallest maximum bounds
+//    float tmin = max(max(min(tx1, tx2), min(ty1, ty2)), min(tz1, tz2));
+//    float tmax = min(min(max(tx1, tx2), max(ty1, ty2)), max(tz1, tz2));
+////    cout << "tmin: " << tmin << " tmax: " << tmax << endl;
+//    // case 1: the ray intersects AABB but the tmax is behind the camera
+//    // case 2: the ray does not intersect AABB
+//    if (tmin > tmax) {
+////        cout << "behind camera" << endl;
+//        return -1;
+//        }
+//    
     
     // CENTERPOINTS
     Point3d topcenter(center[0],center[1]+h/2.0,center[2]);
@@ -84,43 +85,28 @@ double Box::intersect (Intersection& info)
     Point3d backcenter(center[0],center[1],center[2]-w/2.0);
     Point3d centerpoints[6] = {frontcenter, leftcenter, topcenter, rightcenter, backcenter, botcenter};
     
-    // VERTICES
-    Point3d topfrontright(center[0]+l/2.0,center[1]+h/2.0,center[2]+w/2.0);
-    Point3d topfrontleft(center[0]-l/2.0,center[1]+h/2.0,center[2]+w/2.0);
-    Point3d topbackright(center[0]+l/2.0,center[1]+h/2.0,center[2]-w/2.0);
-    Point3d botfrontright(center[0]+l/2.0,center[1]-h/2.0,center[2]+w/2.0);
-    Point3d botfrontleft(center[0]-l/2.0,center[1]-h/2.0,center[2]+w/2.0);
-    Point3d botbackright(center[0]+l/2.0,center[1]-h/2.0,center[2]-w/2.0);
-    Point3d topbackleft(center[0]-l/2.0,center[1]+h/2.0,center[2]-w/2.0);
-    Point3d botbackleft(center[0]-l/2.0,center[1]-h/2.0,center[2]-w/2.0);
-//    cout << topfrontright << "/" << topfrontleft << "/" << topbackright << "/" << topbackleft << endl;
-//    cout << botfrontright << "/" << botfrontleft << "/" << botbackright << "/" << botbackleft << endl;
-    
-    Vector3d frontnorm = Vector3d(topfrontleft-botfrontleft).cross(Vector3d(botfrontright-botfrontleft));
-//    Vector3d backnorm = Vector3d(topbackright-botbackright).cross(Vector3d(botbackleft-botbackright));
-    Vector3d  backnorm = - frontnorm;
-    Vector3d leftnorm = Vector3d(topbackleft-botbackleft).cross(Vector3d(botfrontleft-botbackleft));
-//    Vector3d rightnorm = Vector3d(topfrontright-botfrontright).cross(Vector3d(botbackright-botfrontright));
-    Vector3d rightnorm = -leftnorm;
-    Vector3d topnorm = Vector3d(topbackleft-topfrontleft).cross(Vector3d(topfrontright-topfrontleft));
-//    Vector3d botnorm = Vector3d(botfrontleft-botbackleft).cross(Vector3d(botbackright-botbackleft));
-    Vector3d botnorm = -topnorm;
+    Vector3d frontnorm = Vector3d(0,0,1);
+    Vector3d  backnorm = Vector3d(0,0,-1);
+    Vector3d leftnorm = Vector3d(-1,0,0);
+    Vector3d rightnorm = Vector3d(1,0,0);
+    Vector3d topnorm = Vector3d(0,1,0);
+    Vector3d botnorm = Vector3d(0,-1,0);
     Vector3d norms[6] = {frontnorm, leftnorm, topnorm, rightnorm, backnorm, botnorm};
-//    for (int i = 0; i < 6; ++i)
-//        cout << i << " " << norms[i] <<endl;
 
+    double alpha = -1;
+    double index = 0;
+    
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
         double dInt = planeIntersect(info.theRay, centerpoints[j], norms[j]);
-        if (dInt != 0) {
-//        cout << dInt << " " << j <<endl;
+        // dInt should be the shortest one we can get because we want the closest intersection
+        if (dInt != -1 && dInt < alpha) {
             Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
-//        cout << i << " " << j << endl;
             info.iCoordinate = i;
+            
             info.material = this->material;
             info.textured = this->textured;
 //        cout << "intersection: " << i << endl;
-//        cout << "j: " << j << endl;
             Vector3d n;
             n = norms[j];
             if (n.dot(info.theRay.getDir()) < 0) {
@@ -128,21 +114,21 @@ double Box::intersect (Intersection& info)
             }
             else
             {
-                n = -n; // FIXME:
+                n = -n; // FIXME
                 info.entering = false;
             }
         
             n.normalize();
             info.normal = n;
-        
-//        if (i[0]>(center[0]-l/2.0) && i[1]>(center[1]-h/2.0) && i[2]>(center[2]-w/2.0) && i[0]<(center[0]+l/2.0) && i[1]<(center[1]+h/2.0) && i[2]>(center[2]+w/2.0))
-//        if ((i[0]>lb[0] && i[1]>lb[1] )|| (i[2]>lb[2] && i[0]<rt[0]) || (i[1]<rt[1] && i[2]>rt[2]))
-//            return tmin;
-
-
         }
+        
+        Vector3d intersectVect = Vector3d(info.iCoordinate-info.theRay.getPos()); // SHOULD THIS JUST BE THERAY? DO WE SET THAT ABOVE
+        index++;
+        return intersectVect.length();
+        
     }
-    return 1;
+    index++;
+    return -1;
 }
 
 
