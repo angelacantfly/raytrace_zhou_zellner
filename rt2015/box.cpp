@@ -35,7 +35,6 @@ double Box::planeIntersect (Rayd& ray, Point3d& p0, Vector3d& n)
 
 double Box::intersect (Intersection& info)
 {
-    // Left bottom is minimal, right top is maximal
     int l = size[0];
     int w = size[2];
     int h = size[1];
@@ -57,18 +56,18 @@ double Box::intersect (Intersection& info)
     Vector3d botnorm = Vector3d(0,-1,0);
     Vector3d norms[6] = {frontnorm, rightnorm, topnorm, leftnorm, backnorm, botnorm};
 
-    double alpha = 0;
+    double alpha = -1;
     
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
         double dInt = planeIntersect(info.theRay, centerpoints[j], norms[j]);
         // dInt should be the shortest one we can get because we want the closest intersection
 //        cout << dInt << endl;
-        if (dInt != -1 && dInt > alpha) {
+        if (dInt != -1) {
             Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
             info.iCoordinate = i;
-            info.material = this->material;
-            info.textured = this->textured;
+           
+            
 //        cout << "intersection: " << i << endl;
             Vector3d n;
             n = norms[j];
@@ -79,27 +78,69 @@ double Box::intersect (Intersection& info)
                 n = -n;
                 info.entering = false;
             }
-
             n.normalize();
             info.normal = n;
+            
+            info.material = this->material;
+           
+            info.textured = this->textured;
+            if (info.textured || material->bumpMapped()) {
+               
+            
+                
+                
+            }
+            
         
-            if (info.iCoordinate[0] <= center[0]+l/2.0 && info.iCoordinate[0] >= center[0]-l/2.0 &&
-                info.iCoordinate[1] <= center[1]+h/2.0 && info.iCoordinate[1] >= center[1]-h/2.0 &&
-                info.iCoordinate[2] <= center[2]+w/2.0 && info.iCoordinate[2] >= center[2]-w/2.0 &&
-                info.entering)
-                return Vector3d(info.iCoordinate-info.theRay.getPos()).length();
+        if (info.iCoordinate[0] <= center[0]+l/2.0 && info.iCoordinate[0] >= center[0]-l/2.0 &&
+            info.iCoordinate[1] <= center[1]+h/2.0 && info.iCoordinate[1] >= center[1]-h/2.0 &&
+            info.iCoordinate[2] <= center[2]+w/2.0 && info.iCoordinate[2] >= center[2]-w/2.0 &&
+            info.entering)
+            return Vector3d(info.iCoordinate-info.theRay.getPos()).length();
         }
     }
     return -1;
 }
 
 
+
 TexCoord2d Box::getTexCoordinates (Point3d i)
 {
-// skeleton delete
-	TexCoord2d tCoord(0.0, 0.0);
-
-	return tCoord;
+    int l = size[0];
+    int w = size[2];
+    int h = size[1];
+    
+    
+    
+    TexCoord2d t1(0,w);
+    TexCoord2d t2(w,w);
+    TexCoord2d t3(w,0);
+    TexCoord2d t4(w+l,0);
+    TexCoord2d t5(w+l,w);
+    TexCoord2d t6((2*w)+l,w);
+    TexCoord2d t7(2*(w+l),w);
+    TexCoord2d t8(2*(w+l),w+h);
+    TexCoord2d t9((2*w)+l,w+h);
+    TexCoord2d t10(w+l,w+h);
+    TexCoord2d t11(w+l,(2*w)+h);
+    TexCoord2d t12(w,(2*w)+h);
+    TexCoord2d t13(w,w+h);
+    TexCoord2d t14(0,w+h);
+    
+    Vector2d frontleft();
+    Vector2d frontright();
+    Vector2d backleft();
+    Vector2d backright();
+    Vector2d topfront();
+    Vector2d topback();
+    Vector2d topleft();
+    Vector2d topright();
+    Vector2d botfront();
+    Vector2d botback();
+    Vector2d botleft();
+    Vector2d botright();
+    
+//	return tCoord;
 }
 
 
