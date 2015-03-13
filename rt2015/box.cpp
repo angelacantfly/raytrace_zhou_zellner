@@ -47,7 +47,7 @@ double Box::intersect (Intersection& info)
     Point3d leftcenter(center[0]-l/2.0,center[1],center[2]);
     Point3d frontcenter(center[0],center[1],center[2]+w/2.0);
     Point3d backcenter(center[0],center[1],center[2]-w/2.0);
-    Point3d centerpoints[6] = {frontcenter, leftcenter, topcenter, rightcenter, backcenter, botcenter};
+    Point3d centerpoints[6] = {frontcenter, rightcenter, topcenter, leftcenter, backcenter, botcenter};
     
     Vector3d frontnorm = Vector3d(0,0,1);
     Vector3d  backnorm = Vector3d(0,0,-1);
@@ -55,21 +55,18 @@ double Box::intersect (Intersection& info)
     Vector3d rightnorm = Vector3d(1,0,0);
     Vector3d topnorm = Vector3d(0,1,0);
     Vector3d botnorm = Vector3d(0,-1,0);
-    Vector3d norms[6] = {frontnorm, leftnorm, topnorm, rightnorm, backnorm, botnorm};
+    Vector3d norms[6] = {frontnorm, rightnorm, topnorm, leftnorm, backnorm, botnorm};
 
-    double alpha = -1;
+    double alpha = 0;
     
     for (int j=0; j<6; j++) {
 //        cout << "norm:: " << norms[j] << endl;
         double dInt = planeIntersect(info.theRay, centerpoints[j], norms[j]);
         // dInt should be the shortest one we can get because we want the closest intersection
-        cout << dInt << endl;
+//        cout << dInt << endl;
         if (dInt != -1 && dInt > alpha) {
-            cout << "HERE" << endl;
             Point3d i = info.theRay.getPos() + dInt*info.theRay.getDir();
             info.iCoordinate = i;
-            cout << info.iCoordinate << endl;
-            
             info.material = this->material;
             info.textured = this->textured;
 //        cout << "intersection: " << i << endl;
@@ -78,16 +75,20 @@ double Box::intersect (Intersection& info)
             if (n.dot(info.theRay.getDir()) < 0) {
                 info.entering = true;
             }
-            else
-            {
-                n = -n; // FIXME
+            else {
+                n = -n;
                 info.entering = false;
             }
-        
+
             n.normalize();
             info.normal = n;
+        
+            if (info.iCoordinate[0] <= center[0]+l/2.0 && info.iCoordinate[0] >= center[0]-l/2.0 &&
+                info.iCoordinate[1] <= center[1]+h/2.0 && info.iCoordinate[1] >= center[1]-h/2.0 &&
+                info.iCoordinate[2] <= center[2]+w/2.0 && info.iCoordinate[2] >= center[2]-w/2.0 &&
+                info.entering)
+                return Vector3d(info.iCoordinate-info.theRay.getPos()).length();
         }
-        return Vector3d(info.iCoordinate-info.thRay.getPos()).length();
     }
     return -1;
 }
